@@ -23,6 +23,21 @@ $search = trim($_GET['search'] ?? "");
 $filterCategory = trim($_GET['filter_category'] ?? "");
 $filterDate = trim($_GET['filter_date'] ?? "");
 
+// Pagination
+$recordsPerPage = 10;
+
+$page = filter_input(
+    INPUT_GET,
+    "page",
+    FILTER_VALIDATE_INT
+);
+
+if(!$page || $page < 1){
+
+    $page = 1;
+
+}
+
 
 // Form values
 $expenseName = "";
@@ -232,12 +247,105 @@ if($filterDate !== ""){
 }
 
 
+// =========================================
+// Count matching expense records
+// =========================================
+
+$countSql = "
+    SELECT COUNT(*) AS total
+    FROM expenses
+";
+
+if(count($conditions) > 0){
+
+    $countSql .= "
+        WHERE " .
+        implode(
+            " AND ",
+            $conditions
+        );
+
+}
+
+$countStatement =
+    mysqli_prepare(
+        $conn,
+        $countSql
+    );
+
+$totalRecords = 0;
+
+if($countStatement){
+
+    if(count($parameters) > 0){
+
+        mysqli_stmt_bind_param(
+            $countStatement,
+            $parameterTypes,
+            ...$parameters
+        );
+
+    }
+
+    mysqli_stmt_execute(
+        $countStatement
+    );
+
+    $countResult =
+        mysqli_stmt_get_result(
+            $countStatement
+        );
+
+    $countRow =
+        mysqli_fetch_assoc(
+            $countResult
+        );
+
+    $totalRecords =
+        (int) (
+            $countRow['total'] ?? 0
+        );
+
+    mysqli_stmt_close(
+        $countStatement
+    );
+
+}else{
+
+    $errorMessage =
+        "The number of expense records could not be calculated.";
+
+}
+
+
+// Calculate the number of pages
+$totalPages = max(
+    1,
+    (int) ceil(
+        $totalRecords /
+        $recordsPerPage
+    )
+);
+
+
+// Prevent page numbers beyond the last page
+if($page > $totalPages){
+
+    $page = $totalPages;
+
+}
+
+
+// Calculate how many records MySQL should skip
+$offset =
+    ($page - 1) *
+    $recordsPerPage;
+
 // Build final SELECT query
 $recordsSql = "
     SELECT *
     FROM expenses
 ";
-
 
 if(count($conditions) > 0){
 
@@ -253,6 +361,7 @@ if(count($conditions) > 0){
 
 $recordsSql .= "
     ORDER BY expense_date DESC, id DESC
+    LIMIT ? OFFSET ?
 ";
 
 
@@ -265,21 +374,33 @@ $recordsStatement =
 
 if($recordsStatement){
 
-    if(count($parameters) > 0){
+    /*
+    Add the pagination values after any existing
+    search and filter parameters.
+    */
 
-        mysqli_stmt_bind_param(
-            $recordsStatement,
-            $parameterTypes,
-            ...$parameters
-        );
+    $recordParameters = $parameters;
 
-    }
+    $recordParameterTypes =
+        $parameterTypes . "ii";
+
+    $recordParameters[] =
+        $recordsPerPage;
+
+    $recordParameters[] =
+        $offset;
+
+
+    mysqli_stmt_bind_param(
+        $recordsStatement,
+        $recordParameterTypes,
+        ...$recordParameters
+    );
 
 
     mysqli_stmt_execute(
         $recordsStatement
     );
-
 
     $result =
         mysqli_stmt_get_result(
@@ -781,6 +902,50 @@ if($recordsStatement){
 
     <?php } ?>
 
+    <?php
+
+$startRecord = 0;
+$endRecord = 0;
+
+if($totalRecords > 0){
+
+    $startRecord =
+        $offset + 1;
+
+    $endRecord =
+        min(
+            $offset + $recordsPerPage,
+            $totalRecords
+        );
+
+}
+
+?>
+
+<p class="pagination-summary">
+
+    Showing
+
+    <strong>
+        <?php echo $startRecord; ?>
+    </strong>
+
+    to
+
+    <strong>
+        <?php echo $endRecord; ?>
+    </strong>
+
+    of
+
+    <strong>
+        <?php echo $totalRecords; ?>
+    </strong>
+
+    expense records.
+
+</p>
+
 
     <div class="table-responsive">
 
@@ -950,29 +1115,141 @@ if($recordsStatement){
 
     </div>
 
+    <?php if($totalPages > 1){ ?>
+
+    <div class="pagination">
+
+        <?php
+
+        $paginationParameters = [];
+
+        if($search !== ""){
+
+            $paginationParameters['search'] =
+                $search;
+
+        }
+
+        if($filterCategory !== ""){
+
+            $paginationParameters['filter_category'] =
+                $filterCategory;
+
+        }
+
+        if($filterDate !== ""){
+
+            $paginationParameters['filter_date'] =
+                $filterDate;
+
+        }
+
+        ?>
+
+
+        <?php if($page > 1){ ?>
+
+            <?php
+
+            $previousParameters =
+                $paginationParameters;
+
+            $previousParameters['page'] =
+                $page - 1;
+
+            ?>
+
+            <a href="expenses.php?<?php
+            echo htmlspecialchars(
+                http_build_query(
+                    $previousParameters
+                )
+            );
+            ?>">
+
+                Previous
+
+            </a>
+
+        <?php } ?>
+
+
+        <?php for(
+            $pageNumber = 1;
+            $pageNumber <= $totalPages;
+            $pageNumber++
+        ){ ?>
+
+            <?php
+
+            $pageParameters =
+                $paginationParameters;
+
+            $pageParameters['page'] =
+                $pageNumber;
+
+            ?>
+
+            <a
+                href="expenses.php?<?php
+                echo htmlspecialchars(
+                    http_build_query(
+                        $pageParameters
+                    )
+                );
+                ?>"
+                class="<?php
+                echo $pageNumber === $page
+                    ? 'active'
+                    : '';
+                ?>"
+            >
+
+                <?php echo $pageNumber; ?>
+
+            </a>
+
+        <?php } ?>
+
+
+        <?php if($page < $totalPages){ ?>
+
+            <?php
+
+            $nextParameters =
+                $paginationParameters;
+
+            $nextParameters['page'] =
+                $page + 1;
+
+            ?>
+
+            <a href="expenses.php?<?php
+            echo htmlspecialchars(
+                http_build_query(
+                    $nextParameters
+                )
+            );
+            ?>">
+
+                Next
+
+            </a>
+
+        <?php } ?>
+
+    </div>
+
+<?php } ?>
+
 
     <!-- Expense total -->
 
     <div class="expense-summary">
 
         <h3>
-
-            <?php if(
-                $search !== "" ||
-                $filterCategory !== "" ||
-                $filterDate !== ""
-            ){ ?>
-
-                Total for Displayed Expenses
-
-            <?php }else{ ?>
-
-                Total Expenses
-
-            <?php } ?>
-
-        </h3>
-
+    Total Expenses on This Page
+</h3>
         <p>
 
             K<?php
