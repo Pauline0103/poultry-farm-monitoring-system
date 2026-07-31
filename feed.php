@@ -24,6 +24,21 @@ $search = trim($_GET['search'] ?? "");
 
 $filterDate = trim($_GET['filter_date'] ?? "");
 
+// Pagination
+$recordsPerPage = 10;
+
+$page = filter_input(
+    INPUT_GET,
+    "page",
+    FILTER_VALIDATE_INT
+);
+
+if(!$page || $page < 1){
+
+    $page = 1;
+
+}
+
 
 // Preserve form values
 $feedName = "";
@@ -202,7 +217,212 @@ if(isset($_POST['save'])){
 }
 
 
-// Retrieve feed records
+// =========================================
+// Count records for pagination
+// =========================================
+
+$totalRecords = 0;
+
+if(
+    $search !== "" &&
+    $filterDate !== ""
+){
+
+    $searchValue =
+        "%" . $search . "%";
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM feed
+        WHERE
+        (
+            feed_name LIKE ?
+            OR supplier LIKE ?
+        )
+        AND purchase_date = ?
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+    if($countStatement){
+
+        mysqli_stmt_bind_param(
+            $countStatement,
+            "sss",
+            $searchValue,
+            $searchValue,
+            $filterDate
+        );
+
+        mysqli_stmt_execute(
+            $countStatement
+        );
+
+        $countResult =
+            mysqli_stmt_get_result(
+                $countStatement
+            );
+
+        $countRow =
+            mysqli_fetch_assoc(
+                $countResult
+            );
+
+        $totalRecords =
+            (int) $countRow['total'];
+
+        mysqli_stmt_close(
+            $countStatement
+        );
+
+    }
+
+}elseif($search !== ""){
+
+    $searchValue =
+        "%" . $search . "%";
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM feed
+        WHERE
+            feed_name LIKE ?
+            OR supplier LIKE ?
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+    if($countStatement){
+
+        mysqli_stmt_bind_param(
+            $countStatement,
+            "ss",
+            $searchValue,
+            $searchValue
+        );
+
+        mysqli_stmt_execute(
+            $countStatement
+        );
+
+        $countResult =
+            mysqli_stmt_get_result(
+                $countStatement
+            );
+
+        $countRow =
+            mysqli_fetch_assoc(
+                $countResult
+            );
+
+        $totalRecords =
+            (int) $countRow['total'];
+
+        mysqli_stmt_close(
+            $countStatement
+        );
+
+    }
+
+}elseif($filterDate !== ""){
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM feed
+        WHERE purchase_date = ?
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+    if($countStatement){
+
+        mysqli_stmt_bind_param(
+            $countStatement,
+            "s",
+            $filterDate
+        );
+
+        mysqli_stmt_execute(
+            $countStatement
+        );
+
+        $countResult =
+            mysqli_stmt_get_result(
+                $countStatement
+            );
+
+        $countRow =
+            mysqli_fetch_assoc(
+                $countResult
+            );
+
+        $totalRecords =
+            (int) $countRow['total'];
+
+        mysqli_stmt_close(
+            $countStatement
+        );
+
+    }
+
+}else{
+
+    $countSql =
+        "SELECT COUNT(*) AS total FROM feed";
+
+    $countResult =
+        mysqli_query(
+            $conn,
+            $countSql
+        );
+
+    $countRow =
+        mysqli_fetch_assoc(
+            $countResult
+        );
+
+    $totalRecords =
+        (int) $countRow['total'];
+
+}
+
+$totalPages = ceil(
+    $totalRecords /
+    $recordsPerPage
+);
+
+if($totalPages < 1){
+
+    $totalPages = 1;
+
+}
+
+if($page > $totalPages){
+
+    $page = $totalPages;
+
+}
+
+$offset =
+    ($page - 1) *
+    $recordsPerPage;
+
+// =========================================
+// Retrieve feed records with pagination
+// =========================================
+
 if(
     $search !== "" &&
     $filterDate !== ""
@@ -221,6 +441,7 @@ if(
         )
         AND purchase_date = ?
         ORDER BY purchase_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
     $recordsStatement =
@@ -233,10 +454,12 @@ if(
 
         mysqli_stmt_bind_param(
             $recordsStatement,
-            "sss",
+            "sssii",
             $searchValue,
             $searchValue,
-            $filterDate
+            $filterDate,
+            $recordsPerPage,
+            $offset
         );
 
         mysqli_stmt_execute(
@@ -269,6 +492,7 @@ if(
             feed_name LIKE ?
             OR supplier LIKE ?
         ORDER BY purchase_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
     $recordsStatement =
@@ -281,9 +505,11 @@ if(
 
         mysqli_stmt_bind_param(
             $recordsStatement,
-            "ss",
+            "ssii",
             $searchValue,
-            $searchValue
+            $searchValue,
+            $recordsPerPage,
+            $offset
         );
 
         mysqli_stmt_execute(
@@ -311,6 +537,7 @@ if(
         FROM feed
         WHERE purchase_date = ?
         ORDER BY purchase_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
     $recordsStatement =
@@ -323,8 +550,10 @@ if(
 
         mysqli_stmt_bind_param(
             $recordsStatement,
-            "s",
-            $filterDate
+            "sii",
+            $filterDate,
+            $recordsPerPage,
+            $offset
         );
 
         mysqli_stmt_execute(
@@ -351,16 +580,96 @@ if(
         SELECT *
         FROM feed
         ORDER BY purchase_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
-    $result =
-        mysqli_query(
+    $recordsStatement =
+        mysqli_prepare(
             $conn,
             $recordsSql
         );
 
+    if($recordsStatement){
+
+        mysqli_stmt_bind_param(
+            $recordsStatement,
+            "ii",
+            $recordsPerPage,
+            $offset
+        );
+
+        mysqli_stmt_execute(
+            $recordsStatement
+        );
+
+        $result =
+            mysqli_stmt_get_result(
+                $recordsStatement
+            );
+
+    }else{
+
+        $result = false;
+
+        $errorMessage =
+            "The feed records could not be retrieved.";
+
+    }
+
 }
 
+// Calculate the visible record range
+if($totalRecords > 0){
+
+    $firstDisplayedRecord =
+        $offset + 1;
+
+    $lastDisplayedRecord =
+        min(
+            $offset + $recordsPerPage,
+            $totalRecords
+        );
+
+}else{
+
+    $firstDisplayedRecord = 0;
+
+    $lastDisplayedRecord = 0;
+
+}
+
+
+// Create pagination links while preserving filters
+function createFeedPageUrl(
+    int $pageNumber,
+    string $searchValue,
+    string $dateValue
+): string {
+
+    $queryParameters = [
+        "page" => $pageNumber
+    ];
+
+    if($searchValue !== ""){
+
+        $queryParameters["search"] =
+            $searchValue;
+
+    }
+
+    if($dateValue !== ""){
+
+        $queryParameters["filter_date"] =
+            $dateValue;
+
+    }
+
+    return "feed.php?" .
+        http_build_query(
+            $queryParameters
+        );
+
+}
 ?>
 
 <!DOCTYPE html>
@@ -642,6 +951,34 @@ if(
 
     <?php } ?>
 
+    <div class="pagination-information">
+
+    <p>
+
+        Showing
+
+        <strong>
+            <?php echo $firstDisplayedRecord; ?>
+        </strong>
+
+        to
+
+        <strong>
+            <?php echo $lastDisplayedRecord; ?>
+        </strong>
+
+        of
+
+        <strong>
+            <?php echo $totalRecords; ?>
+        </strong>
+
+        feed record(s)
+
+    </p>
+
+</div>
+
 
     <div class="table-responsive">
 
@@ -789,6 +1126,190 @@ if(
 
 
         </table>
+
+        <?php if($totalPages > 1){ ?>
+
+    <nav
+        class="pagination"
+        aria-label="Feed records pagination"
+    >
+
+
+        <!-- Previous button -->
+
+        <?php if($page > 1){ ?>
+
+            <a
+                href="<?php
+                echo htmlspecialchars(
+                    createFeedPageUrl(
+                        $page - 1,
+                        $search,
+                        $filterDate
+                    )
+                );
+                ?>"
+                class="pagination-link"
+            >
+                Previous
+            </a>
+
+        <?php }else{ ?>
+
+            <span
+                class="pagination-link pagination-disabled"
+            >
+                Previous
+            </span>
+
+        <?php } ?>
+
+
+        <!-- Determine visible page numbers -->
+
+        <?php
+
+        $startPage = max(
+            1,
+            $page - 2
+        );
+
+        $endPage = min(
+            $totalPages,
+            $page + 2
+        );
+
+        ?>
+
+
+        <?php if($startPage > 1){ ?>
+
+            <a
+                href="<?php
+                echo htmlspecialchars(
+                    createFeedPageUrl(
+                        1,
+                        $search,
+                        $filterDate
+                    )
+                );
+                ?>"
+                class="pagination-link"
+            >
+                1
+            </a>
+
+            <?php if($startPage > 2){ ?>
+
+                <span class="pagination-dots">
+                    ...
+                </span>
+
+            <?php } ?>
+
+        <?php } ?>
+
+
+        <?php for(
+            $pageNumber = $startPage;
+            $pageNumber <= $endPage;
+            $pageNumber++
+        ){ ?>
+
+            <?php if($pageNumber === $page){ ?>
+
+                <span
+                    class="pagination-link pagination-active"
+                >
+                    <?php echo $pageNumber; ?>
+                </span>
+
+            <?php }else{ ?>
+
+                <a
+                    href="<?php
+                    echo htmlspecialchars(
+                        createFeedPageUrl(
+                            $pageNumber,
+                            $search,
+                            $filterDate
+                        )
+                    );
+                    ?>"
+                    class="pagination-link"
+                >
+                    <?php echo $pageNumber; ?>
+                </a>
+
+            <?php } ?>
+
+        <?php } ?>
+
+
+        <?php if($endPage < $totalPages){ ?>
+
+            <?php if(
+                $endPage <
+                $totalPages - 1
+            ){ ?>
+
+                <span class="pagination-dots">
+                    ...
+                </span>
+
+            <?php } ?>
+
+            <a
+                href="<?php
+                echo htmlspecialchars(
+                    createFeedPageUrl(
+                        $totalPages,
+                        $search,
+                        $filterDate
+                    )
+                );
+                ?>"
+                class="pagination-link"
+            >
+                <?php echo $totalPages; ?>
+            </a>
+
+        <?php } ?>
+
+
+        <!-- Next button -->
+
+        <?php if($page < $totalPages){ ?>
+
+            <a
+                href="<?php
+                echo htmlspecialchars(
+                    createFeedPageUrl(
+                        $page + 1,
+                        $search,
+                        $filterDate
+                    )
+                );
+                ?>"
+                class="pagination-link"
+            >
+                Next
+            </a>
+
+        <?php }else{ ?>
+
+            <span
+                class="pagination-link pagination-disabled"
+            >
+                Next
+            </span>
+
+        <?php } ?>
+
+
+    </nav>
+
+<?php } ?>
 
     </div>
 

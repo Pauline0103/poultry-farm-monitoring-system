@@ -131,6 +131,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     >
         ⚙️ Settings
     </a>
+
+    <a href="change_password.php">Change Password</a>
 </li>
         <li>
             <a href="logout.php">
