@@ -24,6 +24,21 @@ $search = trim($_GET['search'] ?? "");
 
 $filterDate = trim($_GET['filter_date'] ?? "");
 
+// Pagination
+$recordsPerPage = 10;
+
+$page = filter_input(
+    INPUT_GET,
+    "page",
+    FILTER_VALIDATE_INT
+);
+
+if(!$page || $page < 1){
+
+    $page = 1;
+
+}
+
 
 // Preserve form values
 $birdBatch = "";
@@ -183,6 +198,133 @@ if(isset($_POST['save'])){
 
 }
 
+// Count matching vaccination records
+
+if(
+    $search !== "" &&
+    $filterDate !== ""
+){
+
+    $searchValue =
+        "%" . $search . "%";
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM vaccination
+        WHERE
+        (
+            bird_batch LIKE ?
+            OR vaccine_name LIKE ?
+        )
+        AND vaccination_date = ?
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+    mysqli_stmt_bind_param(
+        $countStatement,
+        "sss",
+        $searchValue,
+        $searchValue,
+        $filterDate
+    );
+
+}
+elseif($search !== ""){
+
+    $searchValue =
+        "%" . $search . "%";
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM vaccination
+        WHERE
+            bird_batch LIKE ?
+            OR vaccine_name LIKE ?
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+    mysqli_stmt_bind_param(
+        $countStatement,
+        "ss",
+        $searchValue,
+        $searchValue
+    );
+
+}
+elseif($filterDate !== ""){
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM vaccination
+        WHERE vaccination_date = ?
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+    mysqli_stmt_bind_param(
+        $countStatement,
+        "s",
+        $filterDate
+    );
+
+}
+else{
+
+    $countSql = "
+        SELECT COUNT(*) AS total
+        FROM vaccination
+    ";
+
+    $countStatement =
+        mysqli_prepare(
+            $conn,
+            $countSql
+        );
+
+}
+
+mysqli_stmt_execute(
+    $countStatement
+);
+
+$countResult =
+    mysqli_stmt_get_result(
+        $countStatement
+    );
+
+$totalRecords =
+    mysqli_fetch_assoc(
+        $countResult
+    )['total'];
+
+$totalPages =
+    ceil(
+        $totalRecords /
+        $recordsPerPage
+    );
+
+$offset =
+    ($page - 1) *
+    $recordsPerPage;
+
+mysqli_stmt_close(
+    $countStatement
+);
+
 
 // Retrieve vaccination records
 if(
@@ -203,6 +345,7 @@ if(
         )
         AND vaccination_date = ?
         ORDER BY vaccination_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
     $recordsStatement =
@@ -216,10 +359,12 @@ if(
 
         mysqli_stmt_bind_param(
             $recordsStatement,
-            "sss",
+            "sssii",
             $searchValue,
             $searchValue,
-            $filterDate
+            $filterDate,
+            $recordsPerPage,
+            $offset
         );
 
         mysqli_stmt_execute(
@@ -252,6 +397,7 @@ if(
             bird_batch LIKE ?
             OR vaccine_name LIKE ?
         ORDER BY vaccination_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
     $recordsStatement =
@@ -265,9 +411,11 @@ if(
 
         mysqli_stmt_bind_param(
             $recordsStatement,
-            "ss",
+            "ssii",
             $searchValue,
-            $searchValue
+            $searchValue,
+            $recordsPerPage,
+            $offset
         );
 
         mysqli_stmt_execute(
@@ -295,6 +443,7 @@ if(
         FROM vaccination
         WHERE vaccination_date = ?
         ORDER BY vaccination_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
     $recordsStatement =
@@ -308,8 +457,10 @@ if(
 
         mysqli_stmt_bind_param(
             $recordsStatement,
-            "s",
-            $filterDate
+            "sii",
+            $filterDate,
+            $recordsPerPage,
+            $offset
         );
 
         mysqli_stmt_execute(
@@ -336,13 +487,42 @@ if(
         SELECT *
         FROM vaccination
         ORDER BY vaccination_date DESC, id DESC
+        LIMIT ? OFFSET ?
     ";
 
-    $result =
-        mysqli_query(
+    $recordsStatement =
+        mysqli_prepare(
             $conn,
             $recordsSql
         );
+
+
+    if($recordsStatement){
+
+        mysqli_stmt_bind_param(
+            $recordsStatement,
+            "ii",
+            $recordsPerPage,
+            $offset
+        );
+
+        mysqli_stmt_execute(
+            $recordsStatement
+        );
+
+        $result =
+            mysqli_stmt_get_result(
+                $recordsStatement
+            );
+
+    }else{
+
+        $result = false;
+
+        $errorMessage =
+            "The vaccination records could not be retrieved.";
+
+    }
 
 }
 
@@ -624,6 +804,50 @@ if(
 
     <?php } ?>
 
+    <?php
+
+$startRecord = 0;
+$endRecord = 0;
+
+if($totalRecords > 0){
+
+    $startRecord =
+        $offset + 1;
+
+    $endRecord =
+        min(
+            $offset + $recordsPerPage,
+            $totalRecords
+        );
+
+}
+
+?>
+
+<p class="pagination-summary">
+
+    Showing
+
+    <strong>
+        <?php echo $startRecord; ?>
+    </strong>
+
+    to
+
+    <strong>
+        <?php echo $endRecord; ?>
+    </strong>
+
+    of
+
+    <strong>
+        <?php echo $totalRecords; ?>
+    </strong>
+
+    vaccination records.
+
+</p>
+
 
     <div class="table-responsive">
 
@@ -849,6 +1073,126 @@ if(
 
 
         </table>
+
+        <?php if($totalPages > 1){ ?>
+
+    <div class="pagination">
+
+        <?php
+
+        $paginationParameters = [];
+
+        if($search !== ""){
+
+            $paginationParameters['search'] =
+                $search;
+
+        }
+
+        if($filterDate !== ""){
+
+            $paginationParameters['filter_date'] =
+                $filterDate;
+
+        }
+
+        ?>
+
+
+        <?php if($page > 1){ ?>
+
+            <?php
+
+            $previousParameters =
+                $paginationParameters;
+
+            $previousParameters['page'] =
+                $page - 1;
+
+            ?>
+
+            <a href="vaccination.php?<?php
+            echo htmlspecialchars(
+                http_build_query(
+                    $previousParameters
+                )
+            );
+            ?>">
+
+                Previous
+
+            </a>
+
+        <?php } ?>
+
+
+        <?php for(
+            $pageNumber = 1;
+            $pageNumber <= $totalPages;
+            $pageNumber++
+        ){ ?>
+
+            <?php
+
+            $pageParameters =
+                $paginationParameters;
+
+            $pageParameters['page'] =
+                $pageNumber;
+
+            ?>
+
+            <a
+                href="vaccination.php?<?php
+                echo htmlspecialchars(
+                    http_build_query(
+                        $pageParameters
+                    )
+                );
+                ?>"
+                class="<?php
+                echo $pageNumber === $page
+                    ? 'active'
+                    : '';
+                ?>"
+            >
+
+                <?php echo $pageNumber; ?>
+
+            </a>
+
+        <?php } ?>
+
+
+        <?php if($page < $totalPages){ ?>
+
+            <?php
+
+            $nextParameters =
+                $paginationParameters;
+
+            $nextParameters['page'] =
+                $page + 1;
+
+            ?>
+
+            <a href="vaccination.php?<?php
+            echo htmlspecialchars(
+                http_build_query(
+                    $nextParameters
+                )
+            );
+            ?>">
+
+                Next
+
+            </a>
+
+        <?php } ?>
+
+    </div>
+
+<?php } ?>
 
     </div>
 
