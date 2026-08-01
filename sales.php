@@ -25,6 +25,21 @@ $filterDate = trim($_GET['filter_date'] ?? "");
 
 $sort = $_GET['sort'] ?? "newest";
 
+// Pagination
+$recordsPerPage = 10;
+
+$page = filter_input(
+    INPUT_GET,
+    "page",
+    FILTER_VALIDATE_INT
+);
+
+if(!$page || $page < 1){
+
+    $page = 1;
+
+}
+
 if(
     isset($_GET['updated']) &&
     $_GET['updated'] === "1"
@@ -540,6 +555,135 @@ if(isset($_POST['save'])){
 }
 
 
+// =========================================
+// Count matching sales records
+// =========================================
+
+$countSql = "
+    SELECT COUNT(*) AS total
+    FROM sales
+    WHERE 1 = 1
+";
+
+$countParameters = [];
+$countParameterTypes = "";
+
+
+// Search by customer name or bird batch
+if($search !== ""){
+
+    $countSql .= "
+        AND
+        (
+            customer_name LIKE ?
+            OR bird_batch LIKE ?
+        )
+    ";
+
+    $searchValue =
+        "%" . $search . "%";
+
+    $countParameters[] =
+        $searchValue;
+
+    $countParameters[] =
+        $searchValue;
+
+    $countParameterTypes .= "ss";
+
+}
+
+
+// Filter by sale date
+if($filterDate !== ""){
+
+    $countSql .= "
+        AND sale_date = ?
+    ";
+
+    $countParameters[] =
+        $filterDate;
+
+    $countParameterTypes .= "s";
+
+}
+
+
+$countStatement =
+    mysqli_prepare(
+        $conn,
+        $countSql
+    );
+
+$totalRecords = 0;
+
+
+if($countStatement){
+
+    if(count($countParameters) > 0){
+
+        mysqli_stmt_bind_param(
+            $countStatement,
+            $countParameterTypes,
+            ...$countParameters
+        );
+
+    }
+
+    mysqli_stmt_execute(
+        $countStatement
+    );
+
+    $countResult =
+        mysqli_stmt_get_result(
+            $countStatement
+        );
+
+    $countRow =
+        mysqli_fetch_assoc(
+            $countResult
+        );
+
+    $totalRecords =
+        (int) (
+            $countRow['total'] ?? 0
+        );
+
+    mysqli_stmt_close(
+        $countStatement
+    );
+
+}else{
+
+    $errorMessage =
+        "The number of sales records could not be calculated.";
+
+}
+
+
+// Calculate total pages
+$totalPages = max(
+    1,
+    (int) ceil(
+        $totalRecords /
+        $recordsPerPage
+    )
+);
+
+
+// Prevent invalid page numbers
+if($page > $totalPages){
+
+    $page = $totalPages;
+
+}
+
+
+// Calculate how many matching records to skip
+$offset =
+    ($page - 1) *
+    $recordsPerPage;
+
 // Retrieve bird batches for the dropdown menu
 $batchListQuery = "
     SELECT
@@ -914,6 +1058,49 @@ Clear
                 All sales recorded in the system.
             </p>
 
+            <?php
+
+$startRecord = 0;
+$endRecord = 0;
+
+if($totalRecords > 0){
+
+    $startRecord =
+        $offset + 1;
+
+    $endRecord =
+        min(
+            $offset + $recordsPerPage,
+            $totalRecords
+        );
+
+}
+
+?>
+
+<p class="pagination-summary">
+
+    Showing
+
+    <strong>
+        <?php echo $startRecord; ?>
+    </strong>
+
+    to
+
+    <strong>
+        <?php echo $endRecord; ?>
+    </strong>
+
+    of
+
+    <strong>
+        <?php echo $totalRecords; ?>
+    </strong>
+
+    sales records.
+
+</p>
         </div>
 
     </div>
@@ -942,67 +1129,125 @@ Clear
             </tr>
 
 
-            <?php
+            
 
-            $salesQuery = "
-SELECT *
-FROM sales
-WHERE 1=1
+          <?php
+
+// Build the sales records query
+$salesQuery = "
+    SELECT *
+    FROM sales
+    WHERE 1 = 1
 ";
 
-if($search != ""){
+$salesParameters = [];
+$salesParameterTypes = "";
 
-    $search =
-    mysqli_real_escape_string(
-        $conn,
-        $search
-    );
+
+// Search by customer name or bird batch
+if($search !== ""){
 
     $salesQuery .= "
-    AND
-    customer_name
-    LIKE '%$search%'
+        AND
+        (
+            customer_name LIKE ?
+            OR bird_batch LIKE ?
+        )
     ";
+
+    $searchValue =
+        "%" . $search . "%";
+
+    $salesParameters[] =
+        $searchValue;
+
+    $salesParameters[] =
+        $searchValue;
+
+    $salesParameterTypes .= "ss";
 
 }
 
-if($filterDate != ""){
 
-    $filterDate =
-    mysqli_real_escape_string(
-        $conn,
-        $filterDate
-    );
+// Filter by sale date
+if($filterDate !== ""){
 
     $salesQuery .= "
-    AND
-    sale_date='$filterDate'
+        AND sale_date = ?
     ";
+
+    $salesParameters[] =
+        $filterDate;
+
+    $salesParameterTypes .= "s";
 
 }
 
-if($sort=="oldest"){
+
+// Apply sorting
+if($sort === "oldest"){
 
     $salesQuery .= "
-    ORDER BY sale_date ASC,id ASC
+        ORDER BY sale_date ASC, id ASC
     ";
 
 }else{
 
     $salesQuery .= "
-    ORDER BY sale_date DESC,id DESC
+        ORDER BY sale_date DESC, id DESC
     ";
 
 }
 
-            $salesResult =
-                mysqli_query(
-                    $conn,
-                    $salesQuery
-                );
 
-            ?>
+// Add pagination
+$salesQuery .= "
+    LIMIT ? OFFSET ?
+";
 
+$salesParameters[] =
+    $recordsPerPage;
+
+$salesParameters[] =
+    $offset;
+
+$salesParameterTypes .= "ii";
+
+
+$salesStatement =
+    mysqli_prepare(
+        $conn,
+        $salesQuery
+    );
+
+
+if($salesStatement){
+
+    mysqli_stmt_bind_param(
+        $salesStatement,
+        $salesParameterTypes,
+        ...$salesParameters
+    );
+
+    mysqli_stmt_execute(
+        $salesStatement
+    );
+
+    $salesResult =
+        mysqli_stmt_get_result(
+            $salesStatement
+        );
+
+}else{
+
+    $salesResult = false;
+
+    $errorMessage =
+        "The sales records could not be retrieved.";
+
+}
+
+?>
 
             <?php if(
                 $salesResult &&
@@ -1112,7 +1357,18 @@ if($sort=="oldest"){
                         class="empty-table-message"
                     >
 
-                        No sales records have been added yet.
+                        <?php if(
+    $search !== "" ||
+    $filterDate !== ""
+){ ?>
+
+    No sales records matched your search.
+
+<?php }else{ ?>
+
+    No sales records have been added yet.
+
+<?php } ?>
 
                     </td>
 
@@ -1124,6 +1380,133 @@ if($sort=="oldest"){
         </table>
 
     </div>
+
+    <?php if($totalPages > 1){ ?>
+
+    <div class="pagination">
+
+        <?php
+
+        $paginationParameters = [];
+
+        if($search !== ""){
+
+            $paginationParameters['search'] =
+                $search;
+
+        }
+
+        if($filterDate !== ""){
+
+            $paginationParameters['filter_date'] =
+                $filterDate;
+
+        }
+
+        if($sort !== ""){
+
+            $paginationParameters['sort'] =
+                $sort;
+
+        }
+
+        ?>
+
+
+        <?php if($page > 1){ ?>
+
+            <?php
+
+            $previousParameters =
+                $paginationParameters;
+
+            $previousParameters['page'] =
+                $page - 1;
+
+            ?>
+
+            <a href="sales.php?<?php
+            echo htmlspecialchars(
+                http_build_query(
+                    $previousParameters
+                )
+            );
+            ?>">
+
+                Previous
+
+            </a>
+
+        <?php } ?>
+
+
+        <?php for(
+            $pageNumber = 1;
+            $pageNumber <= $totalPages;
+            $pageNumber++
+        ){ ?>
+
+            <?php
+
+            $pageParameters =
+                $paginationParameters;
+
+            $pageParameters['page'] =
+                $pageNumber;
+
+            ?>
+
+            <a
+                href="sales.php?<?php
+                echo htmlspecialchars(
+                    http_build_query(
+                        $pageParameters
+                    )
+                );
+                ?>"
+                class="<?php
+                echo $pageNumber === $page
+                    ? 'active'
+                    : '';
+                ?>"
+            >
+
+                <?php echo $pageNumber; ?>
+
+            </a>
+
+        <?php } ?>
+
+
+        <?php if($page < $totalPages){ ?>
+
+            <?php
+
+            $nextParameters =
+                $paginationParameters;
+
+            $nextParameters['page'] =
+                $page + 1;
+
+            ?>
+
+            <a href="sales.php?<?php
+            echo htmlspecialchars(
+                http_build_query(
+                    $nextParameters
+                )
+            );
+            ?>">
+
+                Next
+
+            </a>
+
+        <?php } ?>
+
+    </div>
+
+<?php } ?>
 
 </div>
 
