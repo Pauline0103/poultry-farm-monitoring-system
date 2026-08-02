@@ -3113,3 +3113,748 @@ border-radius:5px;
     }
 
 }
+
+/* ========================================
+   Professional Dashboard
+======================================== */
+
+.modern-dashboard {
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(198, 40, 40, 0.05),
+            transparent 28%
+        ),
+        #F5F7FA;
+}
+
+
+/* Dashboard header */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 26px;
+    padding: 25px 28px;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 16px;
+    box-shadow: 0 7px 22px rgba(11, 31, 58, 0.07);
+}
+
+.dashboard-header h1 {
+    margin: 0 0 7px;
+    text-align: left;
+    color: #0B1F3A;
+    font-size: 30px;
+}
+
+.dashboard-header p {
+    margin: 0;
+    color: #667085;
+    line-height: 1.6;
+}
+
+
+/* Farm status */
+
+.farm-status-good,
+.farm-status-warning,
+.farm-status-danger {
+    min-width: 195px;
+    padding: 14px 18px;
+    box-sizing: border-box;
+    border-radius: 11px;
+    text-align: right;
+}
+
+.farm-status-good {
+    background: #EAF8EF;
+    border: 1px solid #B7E4C5;
+}
+
+.farm-status-warning {
+    background: #FFF7E0;
+    border: 1px solid #F5D98F;
+}
+
+.farm-status-danger {
+    background: #FDEBEC;
+    border: 1px solid #F2B8BC;
+}
+
+.farm-status-good span,
+.farm-status-warning span,
+.farm-status-danger span {
+    display: block;
+    margin-bottom: 5px;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.farm-status-good strong {
+    color: #237A3B;
+}
+
+.farm-status-warning strong {
+    color: #B36A00;
+}
+
+.farm-status-danger strong {
+    color: #B4232A;
+}
+
+
+/* Section headings */
+
+.dashboard-section-title {
+    margin: 34px 0 17px;
+    text-align: left;
+    color: #0B1F3A;
+    font-size: 21px;
+}
+
+
+/* Dashboard alerts */
+
+.dashboard-alerts {
+    display: grid;
+    gap: 13px;
+}
+
+.modern-alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.modern-alert h3 {
+    margin: 0 0 6px;
+    color: #0B1F3A;
+    font-size: 16px;
+}
+
+.modern-alert p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.modern-alert a {
+    flex-shrink: 0;
+    padding: 9px 14px;
+    border-radius: 7px;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.danger-alert {
+    background: #FDEBEC;
+    border-left: 5px solid #C62828;
+    color: #7A2025;
+}
+
+.danger-alert a {
+    background: #C62828;
+}
+
+.warning-alert {
+    background: #FFF7E0;
+    border-left: 5px solid #E49A16;
+    color: #75500C;
+}
+
+.warning-alert a {
+    background: #B86E00;
+}
+
+.modern-alert a:hover {
+    opacity: 0.88;
+}
+
+
+/* Main overview cards */
+
+.modern-card-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(210px, 1fr));
+    gap: 18px;
+}
+
+.modern-card {
+    position: relative;
+    min-height: 155px;
+    padding: 21px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(11, 31, 58, 0.06);
+    transition:
+        transform 0.22s,
+        box-shadow 0.22s,
+        border-color 0.22s;
+}
+
+.modern-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 65px;
+    height: 65px;
+    background: rgba(11, 31, 58, 0.045);
+    border-radius: 0 0 0 65px;
+}
+
+.modern-card:hover {
+    transform: translateY(-3px);
+    border-color: #C7D0DD;
+    box-shadow: 0 12px 27px rgba(11, 31, 58, 0.11);
+}
+
+.modern-card-label {
+    margin-bottom: 13px;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.modern-card-number {
+    margin-bottom: 14px;
+    color: #0B1F3A;
+    font-size: 35px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.modern-card a {
+    color: #C62828;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.modern-card a:hover {
+    text-decoration: underline;
+}
+
+.modern-card small {
+    color: #98A2B3;
+    line-height: 1.5;
+}
+
+.featured-card {
+    background:
+        linear-gradient(
+            135deg,
+            #0B1F3A,
+            #173A66
+        );
+    border-color: transparent;
+}
+
+.featured-card .modern-card-label,
+.featured-card small {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.featured-card .modern-card-number {
+    color: #FFFFFF;
+}
+
+.featured-card::after {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+
+/* Financial overview */
+
+.financial-card-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.financial-card {
+    padding: 23px;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(11, 31, 58, 0.06);
+}
+
+.financial-card span {
+    display: block;
+    margin-bottom: 10px;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.financial-card strong {
+    display: block;
+    margin-bottom: 15px;
+    color: #0B1F3A;
+    font-size: 27px;
+}
+
+.financial-card a {
+    color: #C62828;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.profit-value {
+    color: #237A3B !important;
+}
+
+.loss-value {
+    color: #C62828 !important;
+}
+
+
+/* Analytics */
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.analytics-card {
+    padding: 23px;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(11, 31, 58, 0.06);
+}
+
+.analytics-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.analytics-card-header h3 {
+    margin: 0 0 5px;
+    color: #0B1F3A;
+}
+
+.analytics-card-header p {
+    margin: 0;
+    color: #98A2B3;
+    font-size: 13px;
+}
+
+.analytics-card-header a {
+    padding: 7px 11px;
+    background: #F2F4F7;
+    border-radius: 6px;
+    color: #0B1F3A;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* Horizontal financial chart */
+
+.chart-row {
+    margin-bottom: 19px;
+}
+
+.chart-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 7px;
+    color: #475467;
+    font-size: 13px;
+}
+
+.chart-track {
+    height: 12px;
+    overflow: hidden;
+    background: #EAECF0;
+    border-radius: 20px;
+}
+
+.chart-bar {
+    height: 100%;
+    min-width: 2px;
+    border-radius: 20px;
+    transition: width 0.5s ease;
+}
+
+.sales-chart-bar {
+    background: #0B1F3A;
+}
+
+.expenses-chart-bar {
+    background: #C62828;
+}
+
+.financial-chart-result {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 23px;
+    padding-top: 18px;
+    border-top: 1px solid #EAECF0;
+}
+
+.financial-chart-result span {
+    color: #667085;
+}
+
+.analytics-profit {
+    color: #237A3B;
+}
+
+.analytics-loss {
+    color: #C62828;
+}
+
+
+/* Bird stock distribution */
+
+.distribution-summary {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.distribution-summary div {
+    padding: 12px 8px;
+    background: #F8FAFC;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.distribution-summary strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #0B1F3A;
+    font-size: 19px;
+}
+
+.distribution-summary span {
+    color: #667085;
+    font-size: 11px;
+}
+
+.stacked-chart {
+    width: 100%;
+    height: 18px;
+    display: flex;
+    overflow: hidden;
+    background: #EAECF0;
+    border-radius: 30px;
+}
+
+.stacked-section {
+    height: 100%;
+}
+
+.remaining-section,
+.remaining-progress {
+    background: #237A3B;
+}
+
+.sold-section,
+.sold-progress {
+    background: #0B1F3A;
+}
+
+.dead-section,
+.mortality-progress {
+    background: #C62828;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 15px;
+    color: #667085;
+    font-size: 12px;
+}
+
+.chart-legend div {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.legend-box {
+    width: 11px;
+    height: 11px;
+    display: inline-block;
+    border-radius: 3px;
+}
+
+.remaining-legend {
+    background: #237A3B;
+}
+
+.sold-legend {
+    background: #0B1F3A;
+}
+
+.dead-legend {
+    background: #C62828;
+}
+
+
+/* Performance progress cards */
+
+.performance-progress-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.progress-card {
+    padding: 20px;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 12px;
+}
+
+.progress-card-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 12px;
+    color: #344054;
+}
+
+.progress-track {
+    height: 9px;
+    overflow: hidden;
+    margin-bottom: 11px;
+    background: #EAECF0;
+    border-radius: 20px;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 20px;
+}
+
+.progress-card small {
+    color: #98A2B3;
+    line-height: 1.5;
+}
+
+
+/* Quick actions */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(155px, 1fr));
+    gap: 12px;
+}
+
+.quick-actions a {
+    padding: 14px 15px;
+    background: #FFFFFF;
+    border: 1px solid #D0D5DD;
+    border-radius: 9px;
+    color: #0B1F3A;
+    text-align: center;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.quick-actions a:hover {
+    background: #0B1F3A;
+    border-color: #0B1F3A;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+}
+
+
+/* Recent activity */
+
+.recent-activity-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+.activity-panel {
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(11, 31, 58, 0.06);
+}
+
+.activity-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #EAECF0;
+}
+
+.activity-panel-header h3 {
+    margin: 0 0 4px;
+    color: #0B1F3A;
+}
+
+.activity-panel-header p {
+    margin: 0;
+    color: #98A2B3;
+    font-size: 12px;
+}
+
+.activity-panel-header a {
+    padding: 8px 12px;
+    background: #F2F4F7;
+    border-radius: 6px;
+    color: #0B1F3A;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.activity-table-container {
+    overflow-x: auto;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.activity-table th,
+.activity-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid #EAECF0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.activity-table th {
+    background: #F8FAFC;
+    color: #475467;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.activity-table td {
+    color: #344054;
+    font-size: 13px;
+}
+
+.activity-table tr:last-child td {
+    border-bottom: none;
+}
+
+.activity-table tr:hover td {
+    background: #FAFBFC;
+}
+
+.activity-empty {
+    padding: 28px;
+    color: #98A2B3;
+    text-align: center;
+}
+
+
+/* Dashboard responsive design */
+
+@media screen and (max-width: 1100px) {
+
+    .financial-card-grid,
+    .performance-progress-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media screen and (max-width: 700px) {
+
+    .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 21px;
+    }
+
+    .farm-status-good,
+    .farm-status-warning,
+    .farm-status-danger {
+        width: 100%;
+        text-align: left;
+    }
+
+    .modern-alert {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .financial-card-grid,
+    .performance-progress-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .distribution-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media screen and (max-width: 480px) {
+
+    .dashboard-header h1 {
+        font-size: 25px;
+    }
+
+    .modern-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .financial-chart-result,
+    .activity-panel-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
