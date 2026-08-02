@@ -561,11 +561,32 @@ function createBirdPageUrl(
 <div class="content">
 
 
-    <h1>Bird Management</h1>
+    <div class="page-header">
 
-    <p>
-        Add bird batches and manage existing bird records.
-    </p>
+    <div class="page-header-content">
+
+        <span class="page-badge">
+            🐔 Poultry Management
+        </span>
+
+        <h1>
+            Bird Management
+        </h1>
+
+        <p>
+            Create, organize and monitor all bird batches from one place.
+            Use this page to add new arrivals and manage existing flock records.
+        </p>
+
+    </div>
+
+    <div class="page-header-icon">
+
+        🐣
+
+    </div>
+
+</div>
 
 
     <!-- Success message -->
@@ -602,119 +623,186 @@ function createBirdPageUrl(
     <?php } ?>
 
 
-    <!-- Add bird batch form -->
+ <!-- Add bird batch form -->
 
-    <form method="POST" action="">
+<div class="module-card">
 
+    <div class="module-card-header">
 
-        <label for="batch_name">
-            Batch Name
-        </label>
+        <div>
 
-        <input
-            type="text"
-            id="batch_name"
-            name="batch_name"
-            placeholder="Example: Batch A"
-            value="<?php
-            echo htmlspecialchars(
-                $batchName
-            );
-            ?>"
-            required
-        >
+            <h2>Add New Bird Batch</h2>
 
+            <p>
+                Enter the arrival details for a new flock batch.
+            </p>
 
-        <label for="bird_type">
-            Bird Type
-        </label>
+        </div>
 
-        <input
-            type="text"
-            id="bird_type"
-            name="bird_type"
-            placeholder="Example: Broilers"
-            value="<?php
-            echo htmlspecialchars(
-                $birdType
-            );
-            ?>"
-            required
-        >
+        <span class="module-card-icon">
+            ➕
+        </span>
+
+    </div>
 
 
-        <label for="quantity">
-            Quantity
-        </label>
+    <form
+        method="POST"
+        action=""
+        class="modern-module-form"
+    >
 
-        <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            min="1"
-            step="1"
-            placeholder="Example: 100"
-            value="<?php
-            echo htmlspecialchars(
-                $quantity
-            );
-            ?>"
-            required
-        >
+        <div class="form-grid">
 
+            <div class="form-field">
 
-        <label for="arrival_date">
-            Arrival Date
-        </label>
+                <label for="batch_name">
+                    Batch Name
+                </label>
 
-        <input
-            type="date"
-            id="arrival_date"
-            name="arrival_date"
-            max="<?php echo date('Y-m-d'); ?>"
-            value="<?php
-            echo htmlspecialchars(
-                $arrivalDate
-            );
-            ?>"
-            required
-        >
+                <input
+                    type="text"
+                    id="batch_name"
+                    name="batch_name"
+                    placeholder="Example: Batch A"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $batchName
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
 
 
-        <br><br>
+            <div class="form-field">
+
+                <label for="bird_type">
+                    Bird Type
+                </label>
+
+                <input
+                    type="text"
+                    id="bird_type"
+                    name="bird_type"
+                    placeholder="Example: Broilers"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $birdType
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
 
 
-        <button
-            type="submit"
-            name="save"
-            class="save-button"
-        >
+            <div class="form-field">
 
-            Save Batch
+                <label for="quantity">
+                    Quantity
+                </label>
 
-        </button>
+                <input
+                    type="number"
+                    id="quantity"
+                    name="quantity"
+                    min="1"
+                    step="1"
+                    placeholder="Example: 100"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $quantity
+                    );
+                    ?>"
+                    required
+                >
 
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="arrival_date">
+                    Arrival Date
+                </label>
+
+                <input
+                    type="date"
+                    id="arrival_date"
+                    name="arrival_date"
+                    max="<?php echo date('Y-m-d'); ?>"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $arrivalDate
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                name="save"
+                class="primary-action-button"
+            >
+
+                Save Bird Batch
+
+            </button>
+
+        </div>
 
     </form>
 
+</div>
 
     <br><br>
 
 
-    <!-- Search section -->
+   <!-- Search section -->
 
-    <div class="search-panel">
+<div class="module-card search-module-card">
 
-        <form
-            method="GET"
-            action="birds.php"
-        >
+    <div class="module-card-header">
 
-            <label for="search">
-                Search Bird Records
-            </label>
+        <div>
 
-            <div class="search-row">
+            <h2>Search Bird Records</h2>
+
+            <p>
+                Find batches by batch name or bird type.
+            </p>
+
+        </div>
+
+        <span class="module-card-icon">
+            🔎
+        </span>
+
+    </div>
+
+
+    <form
+        method="GET"
+        action="birds.php"
+        class="modern-search-form"
+    >
+
+        <div class="modern-search-row">
+
+            <div class="modern-search-field">
+
+                <label for="search">
+                    Search
+                </label>
 
                 <input
                     type="text"
@@ -728,31 +816,55 @@ function createBirdPageUrl(
                     ?>"
                 >
 
+            </div>
+
+
+            <div class="modern-search-actions">
+
                 <button
                     type="submit"
-                    class="save-button"
+                    class="primary-action-button"
                 >
                     Search
                 </button>
 
                 <a
                     href="birds.php"
-                    class="search-reset-button"
+                    class="secondary-action-button"
                 >
                     Reset
                 </a>
 
             </div>
 
-        </form>
+        </div>
 
-    </div>
+    </form>
 
+</div>
 
     <br>
 
 
-    <h2>Bird Batch Records</h2>
+    <div class="records-card">
+
+    <div class="records-card-header">
+
+    <div>
+
+        <h2>Bird Batch Records</h2>
+
+        <p>
+            Review and manage all bird batches currently stored in the system.
+        </p>
+
+    </div>
+
+    <span class="records-card-icon">
+        📋
+    </span>
+
+</div>
 
 
     <?php if($search !== ""){ ?>
@@ -772,6 +884,8 @@ function createBirdPageUrl(
         </p>
 
     <?php } ?>
+
+    </div>
 
 
     <!-- Record count -->
@@ -888,29 +1002,32 @@ function createBirdPageUrl(
 
                         <td>
 
-                            <a
-                                href="edit_bird.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                            >
-                                Edit
-                            </a>
+    <div class="table-actions">
 
-                            |
+        <a
+            href="edit_bird.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button edit-action"
+        >
+            Edit
+        </a>
 
-                            <a
-                                href="delete_bird.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                                onclick="return confirm(
-                                    'Are you sure you want to delete this batch?'
-                                );"
-                            >
-                                Delete
-                            </a>
+        <a
+            href="delete_bird.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button delete-action"
+            onclick="return confirm(
+                'Are you sure you want to delete this batch?'
+            );"
+        >
+            Delete
+        </a>
 
-                        </td>
+    </div>
 
+</td>
                     </tr>
 
                 <?php } ?>
