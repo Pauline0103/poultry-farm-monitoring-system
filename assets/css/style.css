@@ -4426,3 +4426,28 @@ font-size:28px;
     }
 
 }
+
+/* ========================================
+   Multi-field Search Layout
+======================================== */
+
+.modern-search-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+}
+
+.modern-search-form .modern-search-actions {
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #EAECF0;
+}
+
+@media screen and (max-width: 700px) {
+
+    .modern-search-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

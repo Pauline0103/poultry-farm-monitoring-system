@@ -703,11 +703,31 @@ function createFeedPageUrl(
 <div class="content">
 
 
-    <h1>Feed Management</h1>
+    <div class="page-header">
 
-    <p>
-        Add feed purchases and manage existing feed records.
-    </p>
+    <div class="page-header-content">
+
+        <span class="page-badge">
+            🌽 Feed Management
+        </span>
+
+        <h1>
+            Feed Management
+        </h1>
+
+        <p>
+            Record feed purchases, monitor suppliers and keep accurate feeding records for every production cycle.
+        </p>
+
+    </div>
+
+    <div class="page-header-icon">
+
+        🌾
+
+    </div>
+
+</div>
 
 
     <?php if($successMessage !== ""){ ?>
@@ -740,202 +760,257 @@ function createFeedPageUrl(
     <?php } ?>
 
 
-    <form method="POST" action="">
+    <div class="module-card">
 
+    <div class="module-card-header">
 
-        <label for="feed_name">
-            Feed Name
-        </label>
+        <div>
 
-        <input
-            type="text"
-            id="feed_name"
-            name="feed_name"
-            value="<?php
-            echo htmlspecialchars(
-                $feedName
-            );
-            ?>"
-            required
-        >
+            <h2>Add Feed Purchase</h2>
 
+            <p>
+                Record new feed stock purchased for your poultry farm.
+            </p>
 
-        <label for="quantity">
-            Quantity (Bags)
-        </label>
+        </div>
 
-        <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            value="<?php
-            echo htmlspecialchars(
-                $quantity
-            );
-            ?>"
-            min="1"
-            step="1"
-            required
-        >
+        <span class="module-card-icon">
+            🌾
+        </span>
 
+    </div>
 
-        <label for="price">
-            Price (K)
-        </label>
+    <form
+        method="POST"
+        action=""
+        class="modern-module-form"
+    >
 
-        <input
-            type="number"
-            id="price"
-            name="price"
-            value="<?php
-            echo htmlspecialchars(
-                $price
-            );
-            ?>"
-            min="0.01"
-            step="0.01"
-            required
-        >
+        <div class="form-grid">
 
+            <div class="form-field">
 
-        <label for="supplier">
-            Supplier
-        </label>
+                <label for="feed_name">
+                    Feed Name
+                </label>
 
-        <input
-            type="text"
-            id="supplier"
-            name="supplier"
-            value="<?php
-            echo htmlspecialchars(
-                $supplier
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="purchase_date">
-            Purchase Date
-        </label>
-
-        <input
-            type="date"
-            id="purchase_date"
-            name="purchase_date"
-            value="<?php
-            echo htmlspecialchars(
-                $purchaseDate
-            );
-            ?>"
-            max="<?php echo date('Y-m-d'); ?>"
-            required
-        >
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-            name="save"
-            class="save-button"
-        >
-
-            Save Feed
-
-        </button>
-
-
-    </form>
-
-
-    <br><br>
-
-
-    <div class="search-panel">
-
-        <form method="GET" action="feed.php">
-
-            <div class="search-grid">
-
-
-                <div>
-
-                    <label for="search">
-                        Search Feed Records
-                    </label>
-
-                    <input
-                        type="text"
-                        id="search"
-                        name="search"
-                        placeholder="Feed name or supplier"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $search
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-                <div>
-
-                    <label for="filter_date">
-                        Purchase Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="filter_date"
-                        name="filter_date"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $filterDate
-                        );
-                        ?>"
-                    >
-
-                </div>
-
+                <input
+                    type="text"
+                    id="feed_name"
+                    name="feed_name"
+                    value="<?php echo htmlspecialchars($feedName); ?>"
+                    required
+                >
 
             </div>
 
+            <div class="form-field">
 
-            <br>
+                <label for="supplier">
+                    Supplier
+                </label>
 
+                <input
+                    type="text"
+                    id="supplier"
+                    name="supplier"
+                    value="<?php echo htmlspecialchars($supplier); ?>"
+                    required
+                >
+
+            </div>
+
+            <div class="form-field">
+
+                <label for="quantity">
+                    Quantity (Bags)
+                </label>
+
+                <input
+                    type="number"
+                    id="quantity"
+                    name="quantity"
+                    value="<?php echo htmlspecialchars($quantity); ?>"
+                    min="1"
+                    step="1"
+                    required
+                >
+
+            </div>
+
+            <div class="form-field">
+
+                <label for="price">
+                    Price (K)
+                </label>
+
+                <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value="<?php echo htmlspecialchars($price); ?>"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+            </div>
+
+            <div class="form-field">
+
+                <label for="purchase_date">
+                    Purchase Date
+                </label>
+
+                <input
+                    type="date"
+                    id="purchase_date"
+                    name="purchase_date"
+                    value="<?php echo htmlspecialchars($purchaseDate); ?>"
+                    max="<?php echo date('Y-m-d'); ?>"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
 
             <button
                 type="submit"
-                class="save-button"
+                name="save"
+                class="primary-action-button"
             >
 
-                Search
+                Save Feed Record
 
             </button>
 
+        </div>
 
-            <a
-                href="feed.php"
-                class="search-reset-button"
-            >
+    </form>
 
-                Reset
-
-            </a>
+</div>
+    <br><br>
 
 
-        </form>
+    <div class="module-card search-module-card">
+
+    <div class="module-card-header">
+
+        <div>
+
+            <h2>Search Feed Records</h2>
+
+            <p>
+                Search by feed name or supplier and filter by purchase date.
+            </p>
+
+        </div>
+
+        <span class="module-card-icon">
+            🔎
+        </span>
 
     </div>
 
 
+    <form
+        method="GET"
+        action="feed.php"
+        class="modern-search-form"
+    >
+
+        <div class="modern-search-grid">
+
+
+            <div class="modern-search-field">
+
+                <label for="search">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Feed name or supplier"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $search
+                    );
+                    ?>"
+                >
+
+            </div>
+
+
+            <div class="modern-search-field">
+
+                <label for="filter_date">
+                    Purchase Date
+                </label>
+
+                <input
+                    type="date"
+                    id="filter_date"
+                    name="filter_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $filterDate
+                    );
+                    ?>"
+                >
+
+            </div>
+
+
+        </div>
+
+
+        <div class="modern-search-actions">
+
+            <button
+                type="submit"
+                class="primary-action-button"
+            >
+                Search
+            </button>
+
+            <a
+                href="feed.php"
+                class="secondary-action-button"
+            >
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
     <br>
 
+<div class="records-card">
+    <div class="records-card-header">
 
-    <h2>Feed Records</h2>
+    <div>
+
+        <h2>Feed Records</h2>
+
+        <p>
+            Review feed purchases, suppliers, quantities and purchase dates.
+        </p>
+
+    </div>
+
+    <span class="records-card-icon">
+        📋
+    </span>
+
+</div>
 
 
     <?php if(
@@ -950,6 +1025,7 @@ function createFeedPageUrl(
         </p>
 
     <?php } ?>
+    </div>
 
     <div class="pagination-information">
 
@@ -1066,31 +1142,34 @@ function createFeedPageUrl(
                             ?>
                         </td>
 
-                        <td>
+                       <td>
 
-                            <a
-                                href="edit_feed.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                            >
-                                Edit
-                            </a>
+    <div class="table-actions">
 
-                            |
+        <a
+            href="edit_feed.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button edit-action"
+        >
+            Edit
+        </a>
 
-                            <a
-                                href="delete_feed.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                                onclick="return confirm(
-                                    'Delete this feed record?'
-                                );"
-                            >
-                                Delete
-                            </a>
+        <a
+            href="delete_feed.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button delete-action"
+            onclick="return confirm(
+                'Delete this feed record?'
+            );"
+        >
+            Delete
+        </a>
 
-                        </td>
+    </div>
 
+</td>
                     </tr>
 
                 <?php } ?>
@@ -1127,7 +1206,10 @@ function createFeedPageUrl(
 
         </table>
 
-        <?php if($totalPages > 1){ ?>
+       
+    </div>
+
+     <?php if($totalPages > 1){ ?>
 
     <nav
         class="pagination"
@@ -1310,8 +1392,6 @@ function createFeedPageUrl(
     </nav>
 
 <?php } ?>
-
-    </div>
 
 
 </div>
