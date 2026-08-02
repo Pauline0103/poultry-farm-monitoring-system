@@ -7,7 +7,7 @@ include "config/database.php";
 $errorMessage = "";
 
 
-// If the user is already logged in, go to the dashboard
+// Redirect users who are already logged in
 if(isset($_SESSION['user_id'])){
 
     header("Location: dashboard.php");
@@ -20,12 +20,14 @@ if(isset($_SESSION['user_id'])){
 // Process the login form
 if($_SERVER["REQUEST_METHOD"] === "POST"){
 
-    $username = trim($_POST['username'] ?? "");
+    $username = trim(
+        $_POST['username'] ?? ""
+    );
 
-    $password = $_POST['password'] ?? "";
+    $password =
+        $_POST['password'] ?? "";
 
 
-    // Check for empty fields
     if($username === "" || $password === ""){
 
         $errorMessage =
@@ -33,13 +35,22 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
     }else{
 
-        // Retrieve the user securely
-        $sql = "SELECT id, username, email, password
-                FROM users
-                WHERE username = ?
-                LIMIT 1";
+        $sql = "
+            SELECT
+                id,
+                username,
+                email,
+                password
+            FROM users
+            WHERE username = ?
+            LIMIT 1
+        ";
 
-        $stmt = mysqli_prepare($conn, $sql);
+        $stmt =
+            mysqli_prepare(
+                $conn,
+                $sql
+            );
 
 
         if($stmt){
@@ -50,9 +61,14 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                 $username
             );
 
-            mysqli_stmt_execute($stmt);
+            mysqli_stmt_execute(
+                $stmt
+            );
 
-            $result = mysqli_stmt_get_result($stmt);
+            $result =
+                mysqli_stmt_get_result(
+                    $stmt
+                );
 
 
             if(
@@ -60,10 +76,12 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                 mysqli_num_rows($result) === 1
             ){
 
-                $user = mysqli_fetch_assoc($result);
+                $user =
+                    mysqli_fetch_assoc(
+                        $result
+                    );
 
 
-                // Verify the entered password
                 if(
                     password_verify(
                         $password,
@@ -71,11 +89,8 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                     )
                 ){
 
-                    // Create a fresh session ID after login
                     session_regenerate_id(true);
 
-
-                    // Store important user details
                     $_SESSION['user_id'] =
                         (int) $user['id'];
 
@@ -85,8 +100,9 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                     $_SESSION['email'] =
                         $user['email'];
 
-
-                    header("Location: dashboard.php");
+                    header(
+                        "Location: dashboard.php"
+                    );
 
                     exit();
 
@@ -104,7 +120,9 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
             }
 
-            mysqli_stmt_close($stmt);
+            mysqli_stmt_close(
+                $stmt
+            );
 
         }else{
 
@@ -132,7 +150,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Login</title>
+    <title>Login | Poultry Management System</title>
 
     <link
         rel="stylesheet"
@@ -141,79 +159,247 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
 </head>
 
-<body>
+<body class="login-body">
 
 
-<div class="container">
-
-    <h1>Poultry Management System</h1>
-
-    <h2>Welcome Back</h2>
+<div class="modern-login-page">
 
 
-    <?php if($errorMessage !== ""){ ?>
+    <!-- Left image section -->
 
-        <div class="login-error-message">
+    <div class="login-image-section">
 
-            <?php
-            echo htmlspecialchars($errorMessage);
-            ?>
+        <div class="login-image-overlay">
+
+            <div class="login-brand">
+
+                <div class="login-logo">
+                    🐔
+                </div>
+
+                <h1>
+                    Poultry Farm
+                    <span>Management System</span>
+                </h1>
+
+                <p>
+                    Monitor bird batches, feed, sales,
+                    vaccinations, mortality and farm expenses
+                    from one secure system.
+                </p>
+
+            </div>
 
         </div>
 
-    <?php } ?>
+    </div>
 
 
-    <form method="POST" action="">
+    <!-- Right login section -->
+
+    <div class="login-form-section">
+
+        <div class="modern-login-card">
 
 
-        <label for="username">
-            Username
-        </label>
+            <div class="login-card-heading">
 
-        <br>
+                <div class="mobile-login-logo">
+                    🐔
+                </div>
 
-        <input
-            type="text"
-            id="username"
-            name="username"
-            value="<?php
-            echo htmlspecialchars(
-                $_POST['username'] ?? ''
-            );
-            ?>"
-            autocomplete="username"
-            required
-        >
+                <h2>Welcome Back</h2>
 
-        <br><br>
+                <p>
+                    Sign in to continue managing your poultry farm.
+                </p>
+
+            </div>
 
 
-        <label for="password">
-            Password
-        </label>
+            <?php if($errorMessage !== ""){ ?>
 
-        <br>
+                <div class="login-error-message">
 
-        <input
-            type="password"
-            id="password"
-            name="password"
-            autocomplete="current-password"
-            required
-        >
+                    <?php
+                    echo htmlspecialchars(
+                        $errorMessage
+                    );
+                    ?>
 
-        <br><br>
+                </div>
+
+            <?php } ?>
 
 
-        <button type="submit">
-            Login
-        </button>
+            <form
+                method="POST"
+                action=""
+                class="modern-login-form"
+            >
 
 
-    </form>
+                <div class="login-form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <div class="login-input-wrapper">
+
+                        <span class="login-input-icon">
+                            👤
+                        </span>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Enter your username"
+                            value="<?php
+                            echo htmlspecialchars(
+                                $_POST['username'] ?? ""
+                            );
+                            ?>"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="login-form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="login-input-wrapper">
+
+                        <span class="login-input-icon">
+                            🔒
+                        </span>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="passwordToggle"
+                            aria-label="Show password"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="login-options">
+
+                    <span>
+                        Secure account login
+                    </span>
+
+                    <a href="change_password.php">
+                        Change password
+                    </a>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="modern-login-button"
+                >
+
+                    Login
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+
+            </form>
+
+
+            <div class="login-security-note">
+
+                <span>🔐</span>
+
+                <p>
+                    Your password is securely protected.
+                </p>
+
+            </div>
+
+
+            <div class="login-footer">
+
+                <p>
+                    Poultry Farm Management System
+                </p>
+
+                <span>
+                    © <?php echo date("Y"); ?>
+                    All rights reserved.
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
 
 </div>
+
+
+<script>
+
+const passwordInput =
+    document.getElementById("password");
+
+const passwordToggle =
+    document.getElementById("passwordToggle");
+
+passwordToggle.addEventListener(
+    "click",
+    function(){
+
+        const isPassword =
+            passwordInput.type === "password";
+
+        passwordInput.type =
+            isPassword ? "text" : "password";
+
+        passwordToggle.textContent =
+            isPassword ? "Hide" : "Show";
+
+        passwordToggle.setAttribute(
+            "aria-label",
+            isPassword
+                ? "Hide password"
+                : "Show password"
+        );
+
+    }
+);
+
+</script>
 
 
 </body>
