@@ -723,12 +723,20 @@ $batchListResult =
 
 <div class="content">
 
-    <h1>Sales Management</h1>
+    <div class="page-header clean-page-header">
 
-    <p>
-        Record poultry sales and monitor customer transactions.
-    </p>
+    <div class="page-header-content">
 
+        <h1>Sales Management</h1>
+
+        <p>
+            Record poultry sales, monitor customer transactions
+            and track available bird stock.
+        </p>
+
+    </div>
+
+</div>
 
     <!-- Success message -->
 
@@ -756,308 +764,422 @@ $batchListResult =
     <?php } ?>
 
 
-    <form method="POST" action="">
+   <div class="module-card">
 
-
-        <label for="customer_name">
-            Customer Name
-        </label>
-
-        <input
-            type="text"
-            id="customer_name"
-            name="customer_name"
-            value="<?php
-                echo htmlspecialchars(
-                    $customerName
-                );
-            ?>"
-            minlength="2"
-            maxlength="100"
-            required
-        >
-
-
-        <label for="bird_batch">
-            Bird Batch
-        </label>
-
-        <select
-            id="bird_batch"
-            name="bird_batch"
-            required
-        >
-
-            <option value="">
-                Select a bird batch
-            </option>
-
-
-            <?php if(
-                $batchListResult &&
-                mysqli_num_rows(
-                    $batchListResult
-                ) > 0
-            ){ ?>
-
-
-                <?php while(
-                    $batch =
-                    mysqli_fetch_assoc(
-                        $batchListResult
-                    )
-                ){ ?>
-
-                    <option
-                        value="<?php
-                            echo htmlspecialchars(
-                                $batch['batch_name']
-                            );
-                        ?>"
-                        <?php
-                        if(
-                            $birdBatch ===
-                            $batch['batch_name']
-                        ){
-
-                            echo "selected";
-
-                        }
-                        ?>
-                    >
-
-                        <?php
-                        echo htmlspecialchars(
-                            $batch['batch_name']
-                        );
-                        ?>
-
-                        — Originally
-
-                        <?php
-                        echo (int) $batch['quantity'];
-                        ?>
-
-                        bird(s)
-
-                    </option>
-
-                <?php } ?>
-
-
-            <?php } ?>
-
-
-        </select>
-
-
-        <?php if(
-            !$batchListResult ||
-            mysqli_num_rows(
-                $batchListResult
-            ) === 0
-        ){ ?>
-
-            <p class="form-help error-text">
-
-                No bird batches are available.
-
-                <a href="birds.php">
-                    Add a bird batch first.
-                </a>
-
-            </p>
-
-        <?php }else{ ?>
-
-            <p class="form-help">
-
-                Select the batch from which the birds were sold.
-                The system will automatically check its available stock.
-
-            </p>
-
-        <?php } ?>
-
-
-        <label for="birds_sold">
-            Birds Sold
-        </label>
-
-        <input
-            type="number"
-            id="birds_sold"
-            name="birds_sold"
-            value="<?php
-                echo htmlspecialchars(
-                    $birdsSold
-                );
-            ?>"
-            min="1"
-            step="1"
-            required
-        >
-
-
-        <label for="price_per_bird">
-            Price Per Bird (K)
-        </label>
-
-        <input
-            type="number"
-            id="price_per_bird"
-            name="price_per_bird"
-            value="<?php
-                echo htmlspecialchars(
-                    $pricePerBird
-                );
-            ?>"
-            min="0.01"
-            step="0.01"
-            required
-        >
-
-
-        <label for="sale_date">
-            Sale Date
-        </label>
-
-        <input
-            type="date"
-            id="sale_date"
-            name="sale_date"
-            value="<?php
-                echo htmlspecialchars(
-                    $saleDate
-                );
-            ?>"
-            max="<?php echo date('Y-m-d'); ?>"
-            required
-        >
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-            name="save"
-            class="save-button"
-            <?php
-            if(
-                !$batchListResult ||
-                mysqli_num_rows(
-                    $batchListResult
-                ) === 0
-            ){
-
-                echo "disabled";
-
-            }
-            ?>
-        >
-
-            Record Sale
-
-        </button>
-
-    </form>
-
-
-    <br><br>
-
-
-    <div class="records-heading">
+    <div class="module-card-header">
 
         <div>
 
-
-        <div class="search-panel">
-
-<form method="GET">
-
-<div class="search-grid">
-
-<div>
-
-<label>Search Customer</label>
-
-<input
-type="text"
-name="search"
-placeholder="Customer name..."
-value="<?php echo htmlspecialchars($search); ?>">
-
-</div>
-
-<div>
-
-<label>Sale Date</label>
-
-<input
-type="date"
-name="filter_date"
-value="<?php echo htmlspecialchars($filterDate); ?>">
-
-</div>
-
-<div>
-
-<label>Sort</label>
-
-<select name="sort">
-
-<option
-value="newest"
-<?php if($sort=="newest") echo "selected"; ?>>
-
-Newest First
-
-</option>
-
-<option
-value="oldest"
-<?php if($sort=="oldest") echo "selected"; ?>>
-
-Oldest First
-
-</option>
-
-</select>
-
-</div>
-
-</div>
-
-<br>
-
-<button
-class="save-button"
-type="submit">
-
-Search
-
-</button>
-
-<a
-href="sales.php"
-class="cancel-button">
-
-Clear
-
-</a>
-
-</form>
-
-</div>
-
-<br>
-            <h2>Sales Records</h2>
+            <h2>Record New Sale</h2>
 
             <p>
-                All sales recorded in the system.
+                Record a poultry sale while the system automatically
+                checks the available bird stock.
             </p>
 
+        </div>
+
+        
+
+    </div>
+
+
+    <form
+        method="POST"
+        action=""
+        class="modern-module-form"
+    >
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label for="customer_name">
+                    Customer Name
+                </label>
+
+                <input
+                    type="text"
+                    id="customer_name"
+                    name="customer_name"
+                    placeholder="Enter the customer's name"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $customerName
+                    );
+                    ?>"
+                    minlength="2"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="bird_batch">
+                    Bird Batch
+                </label>
+
+                <select
+                    id="bird_batch"
+                    name="bird_batch"
+                    required
+                >
+
+                    <option value="">
+                        Select a bird batch
+                    </option>
+
+
+                    <?php if(
+                        $batchListResult &&
+                        mysqli_num_rows(
+                            $batchListResult
+                        ) > 0
+                    ){ ?>
+
+
+                        <?php while(
+                            $batch =
+                            mysqli_fetch_assoc(
+                                $batchListResult
+                            )
+                        ){ ?>
+
+                            <option
+                                value="<?php
+                                echo htmlspecialchars(
+                                    $batch['batch_name']
+                                );
+                                ?>"
+                                <?php
+                                if(
+                                    $birdBatch ===
+                                    $batch['batch_name']
+                                ){
+
+                                    echo "selected";
+
+                                }
+                                ?>
+                            >
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $batch['batch_name']
+                                );
+                                ?>
+
+                                — Originally
+
+                                <?php
+                                echo (int) $batch['quantity'];
+                                ?>
+
+                                bird(s)
+
+                            </option>
+
+                        <?php } ?>
+
+
+                    <?php } ?>
+
+                </select>
+
+
+                <?php if(
+                    !$batchListResult ||
+                    mysqli_num_rows(
+                        $batchListResult
+                    ) === 0
+                ){ ?>
+
+                    <p class="form-help error-text">
+
+                        No bird batches are available.
+
+                        <a href="birds.php">
+                            Add a bird batch first.
+                        </a>
+
+                    </p>
+
+                <?php }else{ ?>
+
+                    <p class="form-help">
+
+                        Select the batch from which the birds were sold.
+                        Available stock will be checked automatically.
+
+                    </p>
+
+                <?php } ?>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="birds_sold">
+                    Birds Sold
+                </label>
+
+                <input
+                    type="number"
+                    id="birds_sold"
+                    name="birds_sold"
+                    placeholder="Example: 20"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $birdsSold
+                    );
+                    ?>"
+                    min="1"
+                    step="1"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="price_per_bird">
+                    Price Per Bird (K)
+                </label>
+
+                <input
+                    type="number"
+                    id="price_per_bird"
+                    name="price_per_bird"
+                    placeholder="Example: 150.00"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $pricePerBird
+                    );
+                    ?>"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="sale_date">
+                    Sale Date
+                </label>
+
+                <input
+                    type="date"
+                    id="sale_date"
+                    name="sale_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $saleDate
+                    );
+                    ?>"
+                    max="<?php echo date('Y-m-d'); ?>"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                name="save"
+                class="primary-action-button"
+                <?php
+                if(
+                    !$batchListResult ||
+                    mysqli_num_rows(
+                        $batchListResult
+                    ) === 0
+                ){
+
+                    echo "disabled";
+
+                }
+                ?>
+            >
+                Record Sale
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+    
+
+
+    <!-- Search Card -->
+
+        
+
+
+        <div class="module-card search-module-card">
+
+    <div class="module-card-header">
+
+        <div>
+
+            <h2>Search Sales Records</h2>
+
+            <p>
+                Search by customer or bird batch, filter by date
+                and arrange the records by sale date.
+            </p>
+
+        </div>
+
+        
+
+    </div>
+
+
+    <form
+        method="GET"
+        action="sales.php"
+        class="modern-search-form"
+    >
+
+        <div class="sales-search-grid">
+
+
+            <div class="modern-search-field">
+
+                <label for="search">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Customer name or bird batch"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $search
+                    );
+                    ?>"
+                >
+
+            </div>
+
+
+            <div class="modern-search-field">
+
+                <label for="filter_date">
+                    Sale Date
+                </label>
+
+                <input
+                    type="date"
+                    id="filter_date"
+                    name="filter_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $filterDate
+                    );
+                    ?>"
+                >
+
+            </div>
+
+
+            <div class="modern-search-field">
+
+                <label for="sort">
+                    Sort Records
+                </label>
+
+                <select
+                    id="sort"
+                    name="sort"
+                >
+
+                    <option
+                        value="newest"
+                        <?php
+                        if($sort === "newest"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Newest First
+                    </option>
+
+                    <option
+                        value="oldest"
+                        <?php
+                        if($sort === "oldest"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Oldest First
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="modern-search-actions">
+
+            <button
+                type="submit"
+                class="primary-action-button"
+            >
+                Search
+            </button>
+
+            <a
+                href="sales.php"
+                class="secondary-action-button"
+            >
+                Clear
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+           
+<div class="records-card">
+<div class="records-card-header">
+
+    <div>
+
+        <h2>Sales Records</h2>
+
+        <p>
+            Review customer transactions, bird batches and sale amounts.
+        </p>
+
+    </div>
+
+    
+
+</div>
             <?php
 
 $startRecord = 0;
@@ -1101,9 +1223,7 @@ if($totalRecords > 0){
     sales records.
 
 </p>
-        </div>
-
-    </div>
+    
 
 
     <div class="table-responsive">
@@ -1318,31 +1438,34 @@ if($salesStatement){
                             ?>
                         </td>
 
-                        <td>
+                      <td>
 
-                            <a
-                                href="edit_sale.php?id=<?php
-                                    echo (int) $row['id'];
-                                ?>"
-                            >
-                                Edit
-                            </a>
+    <div class="table-actions">
 
-                            |
+        <a
+            href="edit_sale.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button edit-action"
+        >
+            Edit
+        </a>
 
-                            <a
-                                href="delete_sale.php?id=<?php
-                                    echo (int) $row['id'];
-                                ?>"
-                               onclick="return confirm(
-'Delete this sale permanently? This action cannot be undone.'
-);"
-                            >
-                                Delete
-                            </a>
+        <a
+            href="delete_sale.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button delete-action"
+            onclick="return confirm(
+                'Delete this sale permanently? This action cannot be undone.'
+            );"
+        >
+            Delete
+        </a>
 
-                        </td>
+    </div>
 
+</td>
                     </tr>
 
                 <?php } ?>
@@ -1383,7 +1506,10 @@ if($salesStatement){
 
     <?php if($totalPages > 1){ ?>
 
-    <div class="pagination">
+    <nav
+    class="pagination"
+    aria-label="Sales records pagination"
+>
 
         <?php
 
@@ -1425,14 +1551,16 @@ if($salesStatement){
 
             ?>
 
-            <a href="sales.php?<?php
-            echo htmlspecialchars(
-                http_build_query(
-                    $previousParameters
-                )
-            );
-            ?>">
-
+          <a
+    href="sales.php?<?php
+    echo htmlspecialchars(
+        http_build_query(
+            $previousParameters
+        )
+    );
+    ?>"
+    class="pagination-link"
+>
                 Previous
 
             </a>
@@ -1464,11 +1592,11 @@ if($salesStatement){
                     )
                 );
                 ?>"
-                class="<?php
-                echo $pageNumber === $page
-                    ? 'active'
-                    : '';
-                ?>"
+               class="pagination-link <?php
+echo $pageNumber === $page
+    ? 'pagination-active'
+    : '';
+?>"
             >
 
                 <?php echo $pageNumber; ?>
@@ -1504,9 +1632,10 @@ if($salesStatement){
 
         <?php } ?>
 
-    </div>
+</nav>
 
 <?php } ?>
+
 
 </div>
 

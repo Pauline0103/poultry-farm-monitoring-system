@@ -161,21 +161,16 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
 <body class="login-body">
 
-
 <div class="modern-login-page">
 
-
     <!-- Left image section -->
-
-    <div class="login-image-section">
+    <section class="login-image-section">
 
         <div class="login-image-overlay">
 
-            <div class="login-brand">
+            <div class="login-brand-clean">
 
-                <div class="login-logo">
-                    🐔
-                </div>
+                <div class="login-red-line"></div>
 
                 <h1>
                     Poultry Farm
@@ -183,30 +178,24 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                 </h1>
 
                 <p>
-                    Monitor bird batches, feed, sales,
-                    vaccinations, mortality and farm expenses
-                    from one secure system.
+                    Monitor bird batches, feed, sales, vaccinations,
+                    mortality and farm expenses from one secure system.
                 </p>
 
             </div>
 
         </div>
 
-    </div>
+    </section>
 
 
     <!-- Right login section -->
-
-    <div class="login-form-section">
+    <section class="login-form-section">
 
         <div class="modern-login-card">
 
 
             <div class="login-card-heading">
-
-                <div class="mobile-login-logo">
-                    🐔
-                </div>
 
                 <h2>Welcome Back</h2>
 
@@ -245,27 +234,19 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                         Username
                     </label>
 
-                    <div class="login-input-wrapper">
-
-                        <span class="login-input-icon">
-                            👤
-                        </span>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter your username"
-                            value="<?php
-                            echo htmlspecialchars(
-                                $_POST['username'] ?? ""
-                            );
-                            ?>"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $_POST['username'] ?? ""
+                        );
+                        ?>"
+                        autocomplete="username"
+                        required
+                    >
 
                 </div>
 
@@ -276,11 +257,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                         Password
                     </label>
 
-                    <div class="login-input-wrapper">
-
-                        <span class="login-input-icon">
-                            🔒
-                        </span>
+                    <div class="clean-password-wrapper">
 
                         <input
                             type="password"
@@ -295,7 +272,6 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                             type="button"
                             class="password-toggle"
                             id="passwordToggle"
-                            aria-label="Show password"
                         >
                             Show
                         </button>
@@ -305,15 +281,11 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                 </div>
 
 
-                <div class="login-options">
+                <div class="login-options-clean">
 
                     <span>
                         Secure account login
                     </span>
-
-                    <a href="change_password.php">
-                        Change password
-                    </a>
 
                 </div>
 
@@ -322,22 +294,15 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                     type="submit"
                     class="modern-login-button"
                 >
-
                     Login
-
-                    <span>
-                        →
-                    </span>
-
+                    <span>→</span>
                 </button>
 
 
             </form>
 
 
-            <div class="login-security-note">
-
-                <span>🔐</span>
+            <div class="login-security-note-clean">
 
                 <p>
                     Your password is securely protected.
@@ -353,21 +318,16 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
                 </p>
 
                 <span>
-                    © <?php echo date("Y"); ?>
-                    All rights reserved.
+                    © <?php echo date("Y"); ?> All rights reserved.
                 </span>
 
             </div>
 
-
         </div>
 
-    </div>
-
+    </section>
 
 </div>
-
-
 <script>
 
 const passwordInput =
@@ -376,32 +336,34 @@ const passwordInput =
 const passwordToggle =
     document.getElementById("passwordToggle");
 
-passwordToggle.addEventListener(
-    "click",
-    function(){
+if (passwordInput && passwordToggle) {
 
-        const isPassword =
-            passwordInput.type === "password";
+    passwordToggle.addEventListener(
+        "click",
+        function () {
 
-        passwordInput.type =
-            isPassword ? "text" : "password";
+            const isPassword =
+                passwordInput.type === "password";
 
-        passwordToggle.textContent =
-            isPassword ? "Hide" : "Show";
+            passwordInput.type =
+                isPassword ? "text" : "password";
 
-        passwordToggle.setAttribute(
-            "aria-label",
-            isPassword
-                ? "Hide password"
-                : "Show password"
-        );
+            passwordToggle.textContent =
+                isPassword ? "Hide" : "Show";
 
-    }
-);
+            passwordToggle.setAttribute(
+                "aria-label",
+                isPassword
+                    ? "Hide password"
+                    : "Show password"
+            );
+
+        }
+    );
+
+}
 
 </script>
 
-
 </body>
-
 </html>
