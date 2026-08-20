@@ -559,12 +559,20 @@ if(
 <div class="content">
 
 
-    <h1>Vaccination Management</h1>
+    <div class="page-header clean-page-header">
 
-    <p>
-        Record vaccinations and monitor upcoming vaccine due dates.
-    </p>
+    <div class="page-header-content">
 
+        <h1>Vaccination Management</h1>
+
+        <p>
+            Record poultry vaccinations and monitor upcoming
+            vaccine due dates.
+        </p>
+
+    </div>
+
+</div>
 
     <?php if($successMessage !== ""){ ?>
 
@@ -596,201 +604,273 @@ if(
     <?php } ?>
 
 
-    <form method="POST" action="">
+    <div class="module-card">
 
+    <div class="module-card-header">
 
-        <label for="bird_batch">
-            Bird Batch
-        </label>
+        <div>
 
-        <input
-            type="text"
-            id="bird_batch"
-            name="bird_batch"
-            value="<?php
-            echo htmlspecialchars(
-                $birdBatch
-            );
-            ?>"
-            required
-        >
+            <h2>Record Vaccination</h2>
 
+            <p>
+                Add a vaccination record and specify when the
+                next vaccination is due.
+            </p>
 
-        <label for="vaccine_name">
-            Vaccine Name
-        </label>
-
-        <input
-            type="text"
-            id="vaccine_name"
-            name="vaccine_name"
-            value="<?php
-            echo htmlspecialchars(
-                $vaccineName
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="vaccination_date">
-            Vaccination Date
-        </label>
-
-        <input
-            type="date"
-            id="vaccination_date"
-            name="vaccination_date"
-            value="<?php
-            echo htmlspecialchars(
-                $vaccinationDate
-            );
-            ?>"
-            max="<?php echo date('Y-m-d'); ?>"
-            required
-        >
-
-
-        <label for="next_due_date">
-            Next Due Date
-        </label>
-
-        <input
-            type="date"
-            id="next_due_date"
-            name="next_due_date"
-            value="<?php
-            echo htmlspecialchars(
-                $nextDueDate
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="notes">
-            Notes
-        </label>
-
-        <textarea
-            id="notes"
-            name="notes"
-            rows="4"
-        ><?php
-        echo htmlspecialchars(
-            $notes
-        );
-        ?></textarea>
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-            name="save"
-            class="save-button"
-        >
-
-            Save Vaccination
-
-        </button>
-
-
-    </form>
-
-
-    <br><br>
-
-
-    <!-- Search panel -->
-
-    <div class="search-panel">
-
-        <form
-            method="GET"
-            action="vaccination.php"
-        >
-
-            <div class="search-grid">
-
-
-                <div>
-
-                    <label for="search">
-                        Search Vaccination Records
-                    </label>
-
-                    <input
-                        type="text"
-                        id="search"
-                        name="search"
-                        placeholder="Bird batch or vaccine name"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $search
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-                <div>
-
-                    <label for="filter_date">
-                        Vaccination Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="filter_date"
-                        name="filter_date"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $filterDate
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <br>
-
-
-            <button
-                type="submit"
-                class="save-button"
-            >
-
-                Search
-
-            </button>
-
-
-            <a
-                href="vaccination.php"
-                class="search-reset-button"
-            >
-
-                Reset
-
-            </a>
-
-
-        </form>
+        </div>
 
     </div>
 
 
+    <form
+        method="POST"
+        action=""
+        class="modern-module-form"
+    >
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label for="bird_batch">
+                    Bird Batch
+                </label>
+
+                <input
+                    type="text"
+                    id="bird_batch"
+                    name="bird_batch"
+                    placeholder="Enter bird batch"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $birdBatch
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="vaccine_name">
+                    Vaccine Name
+                </label>
+
+                <input
+                    type="text"
+                    id="vaccine_name"
+                    name="vaccine_name"
+                    placeholder="Enter vaccine name"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $vaccineName
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="vaccination_date">
+                    Vaccination Date
+                </label>
+
+                <input
+                    type="date"
+                    id="vaccination_date"
+                    name="vaccination_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $vaccinationDate
+                    );
+                    ?>"
+                    max="<?php
+                    echo date('Y-m-d');
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="next_due_date">
+                    Next Due Date
+                </label>
+
+                <input
+                    type="date"
+                    id="next_due_date"
+                    name="next_due_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $nextDueDate
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field full-width-field">
+
+                <label for="notes">
+                    Notes
+                </label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                    rows="4"
+                    placeholder="Enter any additional vaccination notes"
+                ><?php
+                echo htmlspecialchars(
+                    $notes
+                );
+                ?></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                name="save"
+                class="primary-action-button"
+            >
+                Save Vaccination
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+    <!-- Search panel -->
+
+   <div class="module-card search-module-card">
+
+    <div class="module-card-header">
+
+        <div>
+
+            <h2>Search Vaccination Records</h2>
+
+            <p>
+                Search by bird batch or vaccine name and filter
+                records by vaccination date.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="GET"
+        action="vaccination.php"
+        class="modern-search-form"
+    >
+
+        <div class="modern-search-grid">
+
+
+            <div class="modern-search-field">
+
+                <label for="search">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Bird batch or vaccine name"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $search
+                    );
+                    ?>"
+                >
+
+            </div>
+
+
+            <div class="modern-search-field">
+
+                <label for="filter_date">
+                    Vaccination Date
+                </label>
+
+                <input
+                    type="date"
+                    id="filter_date"
+                    name="filter_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $filterDate
+                    );
+                    ?>"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="modern-search-actions">
+
+            <button
+                type="submit"
+                class="primary-action-button"
+            >
+                Search
+            </button>
+
+            <a
+                href="vaccination.php"
+                class="secondary-action-button"
+            >
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
     <br>
 
 
-    <h2>Vaccination Records</h2>
+    <div class="records-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Vaccination Records</h2>
+
+            <p>
+                Review vaccination history, due dates and current status.
+            </p>
+
+        </div>
+
+    </div>
 
 
     <?php if(
@@ -1013,31 +1093,34 @@ if($totalRecords > 0){
                             ?>
                         </td>
 
-                        <td>
+                       <td>
 
-                            <a
-                                href="edit_vaccination.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                            >
-                                Edit
-                            </a>
+    <div class="table-actions">
 
-                            |
+        <a
+            href="edit_vaccination.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button edit-action"
+        >
+            Edit
+        </a>
 
-                            <a
-                                href="delete_vaccination.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                                onclick="return confirm(
-                                    'Are you sure you want to delete this vaccination record?'
-                                );"
-                            >
-                                Delete
-                            </a>
+        <a
+            href="delete_vaccination.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button delete-action"
+            onclick="return confirm(
+                'Are you sure you want to delete this vaccination record?'
+            );"
+        >
+            Delete
+        </a>
 
-                        </td>
+    </div>
 
+</td>
                     </tr>
 
                 <?php } ?>
@@ -1074,7 +1157,9 @@ if($totalRecords > 0){
 
         </table>
 
-        <?php if($totalPages > 1){ ?>
+</div>
+
+<?php if($totalPages > 1){ ?>
 
     <div class="pagination">
 
@@ -1199,6 +1284,7 @@ if($totalRecords > 0){
 
 </div>
 
+</div>
 
 </body>
 

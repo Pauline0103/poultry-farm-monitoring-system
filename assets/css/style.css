@@ -5113,3 +5113,64 @@ font-size:28px;
     color: #475467;
     font-size: 13px;
 }
+
+/* Full width field used by module forms */
+
+.full-width-field {
+    grid-column: 1 / -1;
+}
+
+.full-width-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+/* ========================================
+   Vaccination Status Styling
+======================================== */
+
+.status-overdue,
+.status-today,
+.status-soon,
+.status-scheduled {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-overdue {
+    background: #FDEBEC;
+    color: #B4232A;
+}
+
+.status-today {
+    background: #FFF3D6;
+    color: #A86400;
+}
+
+.status-soon {
+    background: #FFF8E8;
+    color: #8B6414;
+}
+
+.status-scheduled {
+    background: #EAF3EE;
+    color: #237A3B;
+}
+
+
+/* Vaccination records summary */
+
+.records-card .pagination-summary {
+    margin: 18px 24px;
+    padding: 12px 14px;
+    background: #F8FAFC;
+    border-left: 4px solid #0B1F3A;
+    border-radius: 7px;
+    color: #475467;
+    font-size: 13px;
+}
