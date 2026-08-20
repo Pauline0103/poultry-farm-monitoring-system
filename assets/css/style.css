@@ -5174,3 +5174,57 @@ font-size:28px;
     color: #475467;
     font-size: 13px;
 }
+
+/* ========================================
+   Mortality Page Final Styling
+======================================== */
+
+/* Mortality summary */
+
+.mortality-summary {
+    margin: 24px;
+    padding: 20px 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #F8FAFC;
+
+    border-left: 4px solid #C62828;
+    border-radius: 8px;
+}
+
+.mortality-summary h3 {
+    margin: 0;
+
+    color: #0B1F3A;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.mortality-summary p {
+    margin: 0;
+
+    color: #C62828;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+
+/* Mortality records summary */
+
+.records-card .pagination-summary {
+    margin: 18px 24px;
+    padding: 12px 14px;
+
+    background: #F8FAFC;
+
+    border-left: 4px solid #0B1F3A;
+    border-radius: 7px;
+
+    color: #475467;
+    font-size: 13px;
+}

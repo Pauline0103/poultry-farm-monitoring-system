@@ -565,11 +565,20 @@ if(
 <div class="content">
 
 
-    <h1>Mortality Management</h1>
+    <div class="page-header clean-page-header">
 
-    <p>
-        Record birds that have died and the possible cause of death.
-    </p>
+    <div class="page-header-content">
+
+        <h1>Mortality Management</h1>
+
+        <p>
+            Record bird losses, document possible causes
+            and monitor mortality records.
+        </p>
+
+    </div>
+
+</div>
 
 
     <?php if($successMessage !== ""){ ?>
@@ -602,207 +611,272 @@ if(
     <?php } ?>
 
 
-    <form method="POST" action="">
+   <div class="module-card">
 
+    <div class="module-card-header">
 
-        <label for="bird_batch">
-            Bird Batch
-        </label>
+        <div>
 
-        <input
-            type="text"
-            id="bird_batch"
-            name="bird_batch"
-            placeholder="Example: Batch A"
-            value="<?php
-            echo htmlspecialchars(
-                $birdBatch
-            );
-            ?>"
-            required
-        >
+            <h2>Record Mortality</h2>
 
+            <p>
+                Record bird losses and document the possible
+                cause of death.
+            </p>
 
-        <label for="number_dead">
-            Number of Dead Birds
-        </label>
-
-        <input
-            type="number"
-            id="number_dead"
-            name="number_dead"
-            min="1"
-            step="1"
-            placeholder="Example: 3"
-            value="<?php
-            echo htmlspecialchars(
-                $numberDead
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="cause_of_death">
-            Cause of Death
-        </label>
-
-        <input
-            type="text"
-            id="cause_of_death"
-            name="cause_of_death"
-            placeholder="Example: Respiratory infection"
-            value="<?php
-            echo htmlspecialchars(
-                $causeOfDeath
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="mortality_date">
-            Mortality Date
-        </label>
-
-        <input
-            type="date"
-            id="mortality_date"
-            name="mortality_date"
-            max="<?php echo date('Y-m-d'); ?>"
-            value="<?php
-            echo htmlspecialchars(
-                $mortalityDate
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="notes">
-            Notes
-        </label>
-
-        <textarea
-            id="notes"
-            name="notes"
-            rows="4"
-            placeholder="Enter any additional observations"
-        ><?php
-        echo htmlspecialchars(
-            $notes
-        );
-        ?></textarea>
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-            name="save"
-            class="save-button"
-        >
-
-            Save Mortality Record
-
-        </button>
-
-
-    </form>
-
-
-    <br><br>
-
-
-    <!-- Search panel -->
-
-    <div class="search-panel">
-
-        <form
-            method="GET"
-            action="mortality.php"
-        >
-
-            <div class="search-grid">
-
-
-                <div>
-
-                    <label for="search">
-                        Search Mortality Records
-                    </label>
-
-                    <input
-                        type="text"
-                        id="search"
-                        name="search"
-                        placeholder="Bird batch or cause of death"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $search
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-                <div>
-
-                    <label for="filter_date">
-                        Mortality Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="filter_date"
-                        name="filter_date"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $filterDate
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <br>
-
-
-            <button
-                type="submit"
-                class="save-button"
-            >
-
-                Search
-
-            </button>
-
-
-            <a
-                href="mortality.php"
-                class="search-reset-button"
-            >
-
-                Reset
-
-            </a>
-
-
-        </form>
+        </div>
 
     </div>
 
 
+    <form
+        method="POST"
+        action=""
+        class="modern-module-form"
+    >
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label for="bird_batch">
+                    Bird Batch
+                </label>
+
+                <input
+                    type="text"
+                    id="bird_batch"
+                    name="bird_batch"
+                    placeholder="Example: Batch A"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $birdBatch
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="number_dead">
+                    Number of Dead Birds
+                </label>
+
+                <input
+                    type="number"
+                    id="number_dead"
+                    name="number_dead"
+                    min="1"
+                    step="1"
+                    placeholder="Example: 3"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $numberDead
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="cause_of_death">
+                    Cause of Death
+                </label>
+
+                <input
+                    type="text"
+                    id="cause_of_death"
+                    name="cause_of_death"
+                    placeholder="Example: Respiratory infection"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $causeOfDeath
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="mortality_date">
+                    Mortality Date
+                </label>
+
+                <input
+                    type="date"
+                    id="mortality_date"
+                    name="mortality_date"
+                    max="<?php
+                    echo date('Y-m-d');
+                    ?>"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $mortalityDate
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field full-width-field">
+
+                <label for="notes">
+                    Notes
+                </label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                    rows="4"
+                    placeholder="Enter any additional observations"
+                ><?php
+                echo htmlspecialchars(
+                    $notes
+                );
+                ?></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                name="save"
+                class="primary-action-button"
+            >
+                Save Mortality Record
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+    <!-- Search panel -->
+
+  <div class="module-card search-module-card">
+
+    <div class="module-card-header">
+
+        <div>
+
+            <h2>Search Mortality Records</h2>
+
+            <p>
+                Search by bird batch or cause of death
+                and filter records by mortality date.
+            </p>
+
+        </div>
+
+    </div>
+
+    <form
+        method="GET"
+        action="mortality.php"
+        class="modern-search-form"
+    >
+
+        <div class="modern-search-grid">
+
+            <div class="modern-search-field">
+
+                <label for="search">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Bird batch or cause of death"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $search
+                    );
+                    ?>"
+                >
+
+            </div>
+
+            <div class="modern-search-field">
+
+                <label for="filter_date">
+                    Mortality Date
+                </label>
+
+                <input
+                    type="date"
+                    id="filter_date"
+                    name="filter_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $filterDate
+                    );
+                    ?>"
+                >
+
+            </div>
+
+        </div>
+
+        <div class="modern-search-actions">
+
+            <button
+                type="submit"
+                class="primary-action-button"
+            >
+                Search
+            </button>
+
+            <a
+                href="mortality.php"
+                class="secondary-action-button"
+            >
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
     <br>
 
 
-    <h2>Mortality Records</h2>
+    <div class="records-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Mortality Records</h2>
+
+            <p>
+                Review bird losses, causes of death and mortality dates.
+            </p>
+
+        </div>
+
+    </div>
 
 
     <?php if(
@@ -962,31 +1036,34 @@ if($totalRecords > 0){
                             ?>
                         </td>
 
-                        <td>
+                       <td>
 
-                            <a
-                                href="edit_mortality.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                            >
-                                Edit
-                            </a>
+    <div class="table-actions">
 
-                            |
+        <a
+            href="edit_mortality.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button edit-action"
+        >
+            Edit
+        </a>
 
-                            <a
-                                href="delete_mortality.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                                onclick="return confirm(
-                                    'Delete this mortality record?'
-                                );"
-                            >
-                                Delete
-                            </a>
+        <a
+            href="delete_mortality.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button delete-action"
+            onclick="return confirm(
+                'Delete this mortality record?'
+            );"
+        >
+            Delete
+        </a>
 
-                        </td>
+    </div>
 
+</td>
                     </tr>
 
                 <?php } ?>
@@ -1061,17 +1138,20 @@ if($totalRecords > 0){
 
             ?>
 
-            <a href="mortality.php?<?php
-            echo htmlspecialchars(
-                http_build_query(
-                    $previousParameters
-                )
-            );
-            ?>">
+           <a
+    href="mortality.php?<?php
+    echo htmlspecialchars(
+        http_build_query(
+            $previousParameters
+        )
+    );
+    ?>"
+    class="pagination-link"
+>
 
-                Previous
+    Previous
 
-            </a>
+</a>
 
         <?php } ?>
 
@@ -1100,11 +1180,11 @@ if($totalRecords > 0){
                     )
                 );
                 ?>"
-                class="<?php
-                echo $pageNumber === $page
-                    ? 'active'
-                    : '';
-                ?>"
+                class="pagination-link <?php
+echo $pageNumber === $page
+    ? 'pagination-active'
+    : '';
+?>"
             >
 
                 <?php echo $pageNumber; ?>
@@ -1126,15 +1206,19 @@ if($totalRecords > 0){
 
             ?>
 
-            <a href="mortality.php?<?php
-            echo htmlspecialchars(
-                http_build_query(
-                    $nextParameters
-                )
-            );
-            ?>">
+           <a
+    href="mortality.php?<?php
+    echo htmlspecialchars(
+        http_build_query(
+            $nextParameters
+        )
+    );
+    ?>"
+    class="pagination-link"
+>
 
-                Next
+    Next
+
 
             </a>
 
@@ -1158,6 +1242,7 @@ if($totalRecords > 0){
 
     </div>
 
+</div>
 
 </div>
 
