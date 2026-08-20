@@ -449,12 +449,20 @@ if($recordsStatement){
 <div class="content">
 
 
-    <h1>Expenses Management</h1>
+    <div class="page-header clean-page-header">
 
-    <p>
-        Record and monitor all poultry farm expenses.
-    </p>
+    <div class="page-header-content">
 
+        <h1>Expenses Management</h1>
+
+        <p>
+            Record and monitor poultry farm expenses
+            and operating costs.
+        </p>
+
+    </div>
+
+</div>
 
     <!-- Success message -->
 
@@ -492,402 +500,473 @@ if($recordsStatement){
 
     <!-- Add expense form -->
 
-    <form method="POST" action="">
 
+<div class="module-card">
 
-        <label for="expense_name">
-            Expense Name
-        </label>
+    <div class="module-card-header">
 
-        <input
-            type="text"
-            id="expense_name"
-            name="expense_name"
-            placeholder="Example: Starter feed"
-            value="<?php
-            echo htmlspecialchars(
-                $expenseName
-            );
-            ?>"
-            required
-        >
+        <div>
 
+            <h2>Record Expense</h2>
 
-        <label for="expense_category">
-            Expense Category
-        </label>
+            <p>
+                Add a farm expense and classify it
+                for accurate financial records.
+            </p>
 
-        <select
-            id="expense_category"
-            name="expense_category"
-            required
-        >
-
-            <option value="">
-                Select an expense category
-            </option>
-
-            <option
-                value="Feed"
-                <?php
-                if($expenseCategory === "Feed"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Feed
-            </option>
-
-            <option
-                value="Vaccines"
-                <?php
-                if($expenseCategory === "Vaccines"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Vaccines
-            </option>
-
-            <option
-                value="Medicine"
-                <?php
-                if($expenseCategory === "Medicine"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Medicine
-            </option>
-
-            <option
-                value="Transport"
-                <?php
-                if($expenseCategory === "Transport"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Transport
-            </option>
-
-            <option
-                value="Utilities"
-                <?php
-                if($expenseCategory === "Utilities"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Electricity and Water
-            </option>
-
-            <option
-                value="Equipment"
-                <?php
-                if($expenseCategory === "Equipment"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Equipment
-            </option>
-
-            <option
-                value="Labour"
-                <?php
-                if($expenseCategory === "Labour"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Labour
-            </option>
-
-            <option
-                value="Other"
-                <?php
-                if($expenseCategory === "Other"){
-                    echo "selected";
-                }
-                ?>
-            >
-                Other
-            </option>
-
-        </select>
-
-
-        <label for="amount">
-            Amount
-        </label>
-
-        <input
-            type="number"
-            id="amount"
-            name="amount"
-            step="0.01"
-            min="0.01"
-            placeholder="Example: 850.00"
-            value="<?php
-            echo htmlspecialchars(
-                $amount
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="expense_date">
-            Expense Date
-        </label>
-
-        <input
-            type="date"
-            id="expense_date"
-            name="expense_date"
-            max="<?php echo date('Y-m-d'); ?>"
-            value="<?php
-            echo htmlspecialchars(
-                $expenseDate
-            );
-            ?>"
-            required
-        >
-
-
-        <label for="description">
-            Description
-        </label>
-
-        <textarea
-            id="description"
-            name="description"
-            rows="4"
-            placeholder="Enter additional information about this expense"
-        ><?php
-        echo htmlspecialchars(
-            $description
-        );
-        ?></textarea>
-
-
-        <br><br>
-
-
-        <button
-            type="submit"
-            name="save"
-            class="save-button"
-        >
-
-            Save Expense
-
-        </button>
-
-
-    </form>
-
-
-    <br><br>
-
-
-    <!-- Search and filter panel -->
-
-    <div class="search-panel">
-
-        <form
-            method="GET"
-            action="expenses.php"
-        >
-
-            <div class="expense-search-grid">
-
-
-                <div>
-
-                    <label for="search">
-                        Search Expense Records
-                    </label>
-
-                    <input
-                        type="text"
-                        id="search"
-                        name="search"
-                        placeholder="Expense name or description"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $search
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-                <div>
-
-                    <label for="filter_category">
-                        Expense Category
-                    </label>
-
-                    <select
-                        id="filter_category"
-                        name="filter_category"
-                    >
-
-                        <option value="">
-                            All categories
-                        </option>
-
-                        <option
-                            value="Feed"
-                            <?php
-                            if($filterCategory === "Feed"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Feed
-                        </option>
-
-                        <option
-                            value="Vaccines"
-                            <?php
-                            if($filterCategory === "Vaccines"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Vaccines
-                        </option>
-
-                        <option
-                            value="Medicine"
-                            <?php
-                            if($filterCategory === "Medicine"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Medicine
-                        </option>
-
-                        <option
-                            value="Transport"
-                            <?php
-                            if($filterCategory === "Transport"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Transport
-                        </option>
-
-                        <option
-                            value="Utilities"
-                            <?php
-                            if($filterCategory === "Utilities"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Electricity and Water
-                        </option>
-
-                        <option
-                            value="Equipment"
-                            <?php
-                            if($filterCategory === "Equipment"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Equipment
-                        </option>
-
-                        <option
-                            value="Labour"
-                            <?php
-                            if($filterCategory === "Labour"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Labour
-                        </option>
-
-                        <option
-                            value="Other"
-                            <?php
-                            if($filterCategory === "Other"){
-                                echo "selected";
-                            }
-                            ?>
-                        >
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div>
-
-                    <label for="filter_date">
-                        Expense Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="filter_date"
-                        name="filter_date"
-                        value="<?php
-                        echo htmlspecialchars(
-                            $filterDate
-                        );
-                        ?>"
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <br>
-
-
-            <button
-                type="submit"
-                class="save-button"
-            >
-
-                Search
-
-            </button>
-
-
-            <a
-                href="expenses.php"
-                class="search-reset-button"
-            >
-
-                Reset
-
-            </a>
-
-
-        </form>
+        </div>
 
     </div>
 
 
+    <form
+        method="POST"
+        action=""
+        class="modern-module-form"
+    >
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label for="expense_name">
+                    Expense Name
+                </label>
+
+                <input
+                    type="text"
+                    id="expense_name"
+                    name="expense_name"
+                    placeholder="Example: Starter feed"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $expenseName
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="expense_category">
+                    Expense Category
+                </label>
+
+                <select
+                    id="expense_category"
+                    name="expense_category"
+                    required
+                >
+
+                    <option value="">
+                        Select an expense category
+                    </option>
+
+                    <option
+                        value="Feed"
+                        <?php
+                        if($expenseCategory === "Feed"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Feed
+                    </option>
+
+                    <option
+                        value="Vaccines"
+                        <?php
+                        if($expenseCategory === "Vaccines"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Vaccines
+                    </option>
+
+                    <option
+                        value="Medicine"
+                        <?php
+                        if($expenseCategory === "Medicine"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Medicine
+                    </option>
+
+                    <option
+                        value="Transport"
+                        <?php
+                        if($expenseCategory === "Transport"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Transport
+                    </option>
+
+                    <option
+                        value="Utilities"
+                        <?php
+                        if($expenseCategory === "Utilities"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Electricity and Water
+                    </option>
+
+                    <option
+                        value="Equipment"
+                        <?php
+                        if($expenseCategory === "Equipment"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Equipment
+                    </option>
+
+                    <option
+                        value="Labour"
+                        <?php
+                        if($expenseCategory === "Labour"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Labour
+                    </option>
+
+                    <option
+                        value="Other"
+                        <?php
+                        if($expenseCategory === "Other"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="amount">
+                    Amount (K)
+                </label>
+
+                <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    step="0.01"
+                    min="0.01"
+                    placeholder="Example: 850.00"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $amount
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="expense_date">
+                    Expense Date
+                </label>
+
+                <input
+                    type="date"
+                    id="expense_date"
+                    name="expense_date"
+                    max="<?php
+                    echo date('Y-m-d');
+                    ?>"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $expenseDate
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field full-width-field">
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    placeholder="Enter additional information about this expense"
+                ><?php
+                echo htmlspecialchars(
+                    $description
+                );
+                ?></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                name="save"
+                class="primary-action-button"
+            >
+                Save Expense
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+  <!-- Search and filter panel -->
+
+<div class="module-card search-module-card">
+
+    <div class="module-card-header">
+
+        <div>
+
+            <h2>Search Expense Records</h2>
+
+            <p>
+                Search expenses and filter records by
+                category or expense date.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="GET"
+        action="expenses.php"
+        class="modern-search-form"
+    >
+
+        <div class="modern-search-grid">
+
+
+            <div class="modern-search-field">
+
+                <label for="search">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Expense name or description"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $search
+                    );
+                    ?>"
+                >
+
+            </div>
+
+
+            <div class="modern-search-field">
+
+                <label for="filter_category">
+                    Expense Category
+                </label>
+
+                <select
+                    id="filter_category"
+                    name="filter_category"
+                >
+
+                    <option value="">
+                        All categories
+                    </option>
+
+                    <option
+                        value="Feed"
+                        <?php
+                        if($filterCategory === "Feed"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Feed
+                    </option>
+
+                    <option
+                        value="Vaccines"
+                        <?php
+                        if($filterCategory === "Vaccines"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Vaccines
+                    </option>
+
+                    <option
+                        value="Medicine"
+                        <?php
+                        if($filterCategory === "Medicine"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Medicine
+                    </option>
+
+                    <option
+                        value="Transport"
+                        <?php
+                        if($filterCategory === "Transport"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Transport
+                    </option>
+
+                    <option
+                        value="Utilities"
+                        <?php
+                        if($filterCategory === "Utilities"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Electricity and Water
+                    </option>
+
+                    <option
+                        value="Equipment"
+                        <?php
+                        if($filterCategory === "Equipment"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Equipment
+                    </option>
+
+                    <option
+                        value="Labour"
+                        <?php
+                        if($filterCategory === "Labour"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Labour
+                    </option>
+
+                    <option
+                        value="Other"
+                        <?php
+                        if($filterCategory === "Other"){
+                            echo "selected";
+                        }
+                        ?>
+                    >
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="modern-search-field">
+
+                <label for="filter_date">
+                    Expense Date
+                </label>
+
+                <input
+                    type="date"
+                    id="filter_date"
+                    name="filter_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $filterDate
+                    );
+                    ?>"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="modern-search-actions">
+
+            <button
+                type="submit"
+                class="primary-action-button"
+            >
+                Search
+            </button>
+
+            <a
+                href="expenses.php"
+                class="secondary-action-button"
+            >
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
     <br>
 
 
-    <h2>Expense Records</h2>
+    <div class="records-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Expense Records</h2>
+
+            <p>
+                Review farm expenses, categories, amounts
+                and transaction dates.
+            </p>
+
+        </div>
+
+    </div>
 
 
     <?php if(
@@ -1053,29 +1132,32 @@ if($totalRecords > 0){
 
                         <td>
 
-                            <a
-                                href="edit_expense.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                            >
-                                Edit
-                            </a>
+    <div class="table-actions">
 
-                            |
+        <a
+            href="edit_expense.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button edit-action"
+        >
+            Edit
+        </a>
 
-                            <a
-                                href="delete_expense.php?id=<?php
-                                echo (int) $row['id'];
-                                ?>"
-                                onclick="return confirm(
-                                    'Are you sure you want to delete this expense record?'
-                                );"
-                            >
-                                Delete
-                            </a>
+        <a
+            href="delete_expense.php?id=<?php
+            echo (int) $row['id'];
+            ?>"
+            class="table-action-button delete-action"
+            onclick="return confirm(
+                'Are you sure you want to delete this expense record?'
+            );"
+        >
+            Delete
+        </a>
 
-                        </td>
+    </div>
 
+</td>
                     </tr>
 
                 <?php } ?>
@@ -1159,13 +1241,16 @@ if($totalRecords > 0){
 
             ?>
 
-            <a href="expenses.php?<?php
-            echo htmlspecialchars(
-                http_build_query(
-                    $previousParameters
-                )
-            );
-            ?>">
+           <a
+    href="expenses.php?<?php
+    echo htmlspecialchars(
+        http_build_query(
+            $previousParameters
+        )
+    );
+    ?>"
+    class="pagination-link"
+>
 
                 Previous
 
@@ -1198,11 +1283,11 @@ if($totalRecords > 0){
                     )
                 );
                 ?>"
-                class="<?php
-                echo $pageNumber === $page
-                    ? 'active'
-                    : '';
-                ?>"
+                class="pagination-link <?php
+echo $pageNumber === $page
+    ? 'pagination-active'
+    : '';
+?>"
             >
 
                 <?php echo $pageNumber; ?>
@@ -1224,14 +1309,16 @@ if($totalRecords > 0){
 
             ?>
 
-            <a href="expenses.php?<?php
-            echo htmlspecialchars(
-                http_build_query(
-                    $nextParameters
-                )
-            );
-            ?>">
-
+           <a
+    href="expenses.php?<?php
+    echo htmlspecialchars(
+        http_build_query(
+            $nextParameters
+        )
+    );
+    ?>"
+    class="pagination-link"
+>
                 Next
 
             </a>
@@ -1245,26 +1332,30 @@ if($totalRecords > 0){
 
     <!-- Expense total -->
 
-    <div class="expense-summary">
+  <div class="expense-summary">
 
-        <h3>
-    Total Expenses on This Page
-</h3>
-        <p>
+    <h3>
+        Total Expenses on This Page
+    </h3>
 
-            K<?php
-            echo number_format(
-                $displayedTotalExpenses,
-                2
-            );
-            ?>
+    <p>
 
-        </p>
+        K<?php
+        echo number_format(
+            $displayedTotalExpenses,
+            2
+        );
+        ?>
 
-    </div>
-
+    </p>
 
 </div>
+
+
+</div> <!-- closes records-card -->
+
+
+</div> <!-- closes content -->
 
 
 </body>
