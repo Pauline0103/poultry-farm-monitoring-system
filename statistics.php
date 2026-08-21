@@ -554,35 +554,43 @@ if($categoryExpensesResult){
 
     <!-- Page heading -->
 
-    <div class="statistics-page-heading">
+<div class="page-header clean-page-header statistics-main-header">
 
-        <div>
+    <div class="page-header-content">
 
-            <h1>Farm Statistics</h1>
+        <h1>Farm Statistics</h1>
 
-            <p>
-                Review sales, expenses and flock
-                performance trends.
-            </p>
-
-        </div>
-
-        <a
-            href="reports.php"
-            class="statistics-report-button"
-        >
-            Open Reports
-        </a>
+        <p>
+            Review financial performance, sales activity
+            and farm trends.
+        </p>
 
     </div>
 
+    <a
+        href="reports.php"
+        class="statistics-report-button"
+    >
+        Open Reports
+    </a>
+
+</div>
 
     <!-- Summary cards -->
 
-    <h2 class="dashboard-section-title">
-        Current Month Summary
-    </h2>
+    <div class="statistics-section-heading">
 
+    <div>
+
+        <h2>Current Month Summary</h2>
+
+        <p>
+            Key farm performance figures for the current month.
+        </p>
+
+    </div>
+
+</div>
 
     <div class="statistics-summary-grid">
 
@@ -691,9 +699,20 @@ if($categoryExpensesResult){
 
     <!-- Monthly financial trends -->
 
-    <h2 class="dashboard-section-title">
-        Six-Month Financial Trend
-    </h2>
+   <div class="statistics-section-heading">
+
+    <div>
+
+        <h2>Six-Month Financial Trend</h2>
+
+        <p>
+            Monthly sales, expenses and financial results
+            for the last six months.
+        </p>
+
+    </div>
+
+</div>
 
 
     <div class="statistics-chart-card">
@@ -703,13 +722,13 @@ if($categoryExpensesResult){
 
             <div>
 
-                <h3>
-                    Monthly Sales and Expenses
-                </h3>
+               <h3>
+    Sales vs Expenses
+</h3>
 
-                <p>
-                    Comparison for the last six months
-                </p>
+<p>
+    Monthly financial comparison
+</p>
 
             </div>
 
@@ -867,13 +886,13 @@ if($categoryExpensesResult){
 
                 <div>
 
-                    <h3>
-                        Birds Sold by Batch
-                    </h3>
+                   <h3>
+    Birds Sold by Batch
+</h3>
 
-                    <p>
-                        Total birds sold from each batch
-                    </p>
+<p>
+    All-time birds sold from each recorded batch.
+</p>
 
                 </div>
 
@@ -985,13 +1004,13 @@ if($categoryExpensesResult){
 
                 <div>
 
-                    <h3>
-                        Expenses by Category
-                    </h3>
+                  <h3>
+    Expenses by Category
+</h3>
 
-                    <p>
-                        Total spending in each category
-                    </p>
+<p>
+    All-time spending grouped by expense category.
+</p>
 
                 </div>
 
@@ -1100,10 +1119,37 @@ if($categoryExpensesResult){
 
     <!-- Monthly details table -->
 
-    <h2 class="dashboard-section-title">
-        Monthly Financial Details
-    </h2>
+   <div class="statistics-section-heading">
 
+    <div>
+
+        <h2>Monthly Financial Details</h2>
+
+        <p>
+            Detailed sales, expenses and profit or loss
+            for the last six months.
+        </p>
+
+    </div>
+
+</div>
+
+
+   <div class="records-card statistics-details-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Six-Month Financial Summary</h2>
+
+            <p>
+                Monthly financial performance overview.
+            </p>
+
+        </div>
+
+    </div>
 
     <div class="table-responsive">
 
@@ -1196,6 +1242,8 @@ if($categoryExpensesResult){
 
     </div>
 
+
+</div>
 
 </div>
 

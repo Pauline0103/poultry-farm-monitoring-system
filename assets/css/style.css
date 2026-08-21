@@ -5552,3 +5552,262 @@ font-size:28px;
     }
 
 }
+
+/* ========================================
+   Statistics Page
+======================================== */
+
+.statistics-main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.statistics-report-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 120px;
+    padding: 11px 18px;
+
+    background: #0B1F3A;
+    color: #FFFFFF;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.statistics-report-button:hover {
+    background: #C62828;
+    color: #FFFFFF;
+}
+
+.statistics-section-heading {
+    margin: 28px 0 16px;
+}
+
+.statistics-section-heading h2 {
+    margin: 0 0 5px;
+
+    color: #0B1F3A;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.statistics-section-heading p {
+    margin: 0;
+
+    color: #667085;
+
+    font-size: 13px;
+}
+
+/* Six-month financial statistics */
+
+.statistics-chart-card {
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.statistics-chart-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.statistics-chart-heading h3 {
+    margin: 0 0 5px;
+    color: #0B1F3A;
+    font-size: 17px;
+}
+
+.statistics-chart-heading p {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+.statistics-chart-key {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.statistics-chart-key span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #667085;
+    font-size: 12px;
+}
+
+.statistics-chart-key i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.monthly-chart {
+    min-height: 300px;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(70px, 1fr));
+    align-items: end;
+    gap: 18px;
+    overflow-x: auto;
+    padding-top: 15px;
+}
+
+.monthly-chart-column {
+    min-width: 70px;
+    text-align: center;
+}
+
+.monthly-bar-area {
+    height: 210px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.vertical-chart-bar {
+    width: 22px;
+    min-height: 3px;
+    border-radius: 5px 5px 0 0;
+}
+
+.monthly-chart-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #344054;
+    font-size: 11px;
+}
+
+.monthly-profit,
+.monthly-loss {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.monthly-profit {
+    color: #237A3B;
+}
+
+.monthly-loss {
+    color: #C62828;
+}
+
+/* ========================================
+   Statistics Breakdown Cards
+======================================== */
+
+.statistics-two-column-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.horizontal-statistics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.horizontal-statistic-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.horizontal-statistic-heading span {
+    color: #344054;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.horizontal-statistic-heading strong {
+    color: #0B1F3A;
+    font-size: 12px;
+}
+
+.horizontal-statistic-track {
+    width: 100%;
+    height: 10px;
+    overflow: hidden;
+    background: #EAECF0;
+    border-radius: 20px;
+}
+
+.horizontal-statistic-fill {
+    height: 100%;
+    border-radius: 20px;
+}
+
+.batch-statistic-fill {
+    background: #0B1F3A;
+}
+
+.category-statistic-fill {
+    background: #C62828;
+}
+
+.statistics-empty-state {
+    padding: 24px;
+    background: #F8FAFC;
+    border-radius: 8px;
+    color: #98A2B3;
+    text-align: center;
+    font-size: 13px;
+}
+
+@media screen and (max-width: 900px) {
+
+    .statistics-two-column-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* ========================================
+   Statistics Financial Details
+======================================== */
+
+.statistics-details-card {
+    margin-bottom: 28px;
+}
+
+.statistics-status-profit,
+.statistics-status-loss {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.statistics-status-profit {
+    background: #EAF3EE;
+    color: #237A3B;
+}
+
+.statistics-status-loss {
+    background: #FDEBEC;
+    color: #B4232A;
+}
