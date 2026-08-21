@@ -147,45 +147,105 @@ $batchPerformanceResult = mysqli_query(
 
 <div class="content">
 
-    <h1>Reports</h1>
+  <div class="page-header clean-page-header">
 
-    <p>Select a date range to generate a report.</p>
+    <div class="page-header-content">
+
+        <h1>Reports</h1>
+
+        <p>
+            Generate financial and bird performance reports
+            for a selected period.
+        </p>
+
+    </div>
+
+</div>
+
+  <div class="module-card">
+
+    <div class="module-card-header">
+
+        <div>
+
+            <h2>Generate Report</h2>
+
+            <p>
+                Choose a start date and end date
+                for the reporting period.
+            </p>
+
+        </div>
+
+    </div>
 
 
-    <form method="POST">
+    <form
+        method="POST"
+        class="modern-module-form"
+    >
 
-        <label>Start Date</label>
+        <div class="form-grid">
 
-        <input
-            type="date"
-            name="start_date"
-            value="<?php echo htmlspecialchars($start_date); ?>"
-            required
-        >
+            <div class="form-field">
+
+                <label for="start_date">
+                    Start Date
+                </label>
+
+                <input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $start_date
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
 
 
-        <label>End Date</label>
+            <div class="form-field">
 
-        <input
-            type="date"
-            name="end_date"
-            value="<?php echo htmlspecialchars($end_date); ?>"
-            required
-        >
+                <label for="end_date">
+                    End Date
+                </label>
+
+                <input
+                    type="date"
+                    id="end_date"
+                    name="end_date"
+                    value="<?php
+                    echo htmlspecialchars(
+                        $end_date
+                    );
+                    ?>"
+                    required
+                >
+
+            </div>
+
+        </div>
 
 
-        <br><br>
+        <div class="form-actions">
 
-        <button
-            type="submit"
-            name="generate"
-            class="save-button"
-        >
-            Generate Report
-        </button>
+            <button
+                type="submit"
+                name="generate"
+                class="primary-action-button"
+            >
+                Generate Report
+            </button>
+
+        </div>
 
     </form>
 
+</div>
 
     <?php if($errorMessage != ""){ ?>
 
@@ -202,28 +262,35 @@ $batchPerformanceResult = mysqli_query(
 
         <br><br>
 
-        <div class="print-report-header">
+        <div class="report-header-card">
 
-            <h2>Poultry Farm Financial Report</h2>
+    <div>
 
-            <p>
+        <h2>Poultry Farm Financial Report</h2>
 
-                Report period:
+        <p>
+            Report period:
+            <strong>
+                <?php echo htmlspecialchars($start_date); ?>
+            </strong>
+            to
+            <strong>
+                <?php echo htmlspecialchars($end_date); ?>
+            </strong>
+        </p>
 
-                <strong>
-                    <?php echo htmlspecialchars($start_date); ?>
-                </strong>
+    </div>
 
-                to
 
-                <strong>
-                    <?php echo htmlspecialchars($end_date); ?>
-                </strong>
+    <button
+        type="button"
+        class="print-button"
+        onclick="window.print()"
+    >
+        Print Report
+    </button>
 
-            </p>
-
-        </div>
-
+</div>
 
         <div class="report-summary">
 
@@ -264,20 +331,23 @@ $batchPerformanceResult = mysqli_query(
         </div>
 
 
-        <div class="report-actions">
 
-            <button
-                type="button"
-                class="print-button"
-                onclick="window.print()"
-            >
-                Print Report
-            </button>
+
+        <div class="records-card report-section-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Sales Report</h2>
+
+            <p>
+                Sales recorded within the selected reporting period.
+            </p>
 
         </div>
 
-
-        <h2>Sales Report</h2>
+    </div>
 
         <?php if(mysqli_num_rows($salesResult) > 0){ ?>
 
@@ -333,10 +403,26 @@ $batchPerformanceResult = mysqli_query(
 
         <?php } ?>
 
+        </div>
+
 
         <br><br>
 
-        <h2>Expense Report</h2>
+        <div class="records-card report-section-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Expense Report</h2>
+
+            <p>
+                Farm expenses recorded within the selected reporting period.
+            </p>
+
+        </div>
+
+    </div>
 
         <?php if(mysqli_num_rows($expenseResult) > 0){ ?>
 
@@ -386,10 +472,26 @@ $batchPerformanceResult = mysqli_query(
             </div>
 
         <?php } ?>
+        </div>
 
         <br><br>
 
-<h2>Bird Batch Performance Report</h2>
+<div class="records-card report-section-card">
+
+    <div class="records-card-header">
+
+        <div>
+
+            <h2>Bird Batch Performance Report</h2>
+
+            <p>
+                Compare bird placement, sales, mortality
+                and estimated remaining stock by batch.
+            </p>
+
+        </div>
+
+    </div>
 
 <?php if(
     $batchPerformanceResult &&
@@ -530,6 +632,7 @@ $batchPerformanceResult = mysqli_query(
 <?php } ?>
 
     <?php } ?>
+    </div>
 
 </div>
 

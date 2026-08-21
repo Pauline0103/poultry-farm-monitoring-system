@@ -5264,3 +5264,291 @@ font-size:28px;
     font-size: 26px;
     font-weight: 700;
 }
+
+/* ========================================
+   Reports Page Summary
+======================================== */
+
+.report-header-card {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    padding: 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    background: #FFFFFF;
+
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+}
+
+.report-header-card h2 {
+    margin: 0 0 8px;
+
+    color: #0B1F3A;
+    font-size: 22px;
+}
+
+.report-header-card p {
+    margin: 0;
+
+    color: #667085;
+    font-size: 14px;
+}
+
+.print-button {
+    min-width: 130px;
+    padding: 11px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #0B1F3A;
+    color: #FFFFFF;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.print-button:hover {
+    background: #C62828;
+}
+
+
+.report-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 28px;
+}
+
+.summary-card {
+    padding: 22px;
+
+    background: #FFFFFF;
+
+    border: 1px solid #EAECF0;
+    border-radius: 14px;
+}
+
+.summary-card h3 {
+    margin: 0 0 10px;
+
+    color: #667085;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.summary-card h2 {
+    margin: 0;
+
+    color: #0B1F3A;
+
+    font-size: 28px;
+}
+
+.summary-card .profit-value {
+    color: #237A3B;
+}
+
+.summary-card .loss-value {
+    color: #C62828;
+}
+
+
+@media screen and (max-width: 800px) {
+
+    .report-header-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .report-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .print-button {
+        width: 100%;
+    }
+
+}
+
+/* ========================================
+   Reports Tables
+======================================== */
+
+.report-section-card {
+    margin-bottom: 24px;
+}
+
+.report-section-card .report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-section-card .report-table th,
+.report-section-card .report-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid #EAECF0;
+    text-align: left;
+}
+
+.report-section-card .report-table th {
+    background: #F8FAFC;
+    color: #475467;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.report-section-card .report-table td {
+    color: #344054;
+    font-size: 13px;
+}
+
+.report-section-card .report-table tr:last-child td {
+    border-bottom: none;
+}
+
+.report-section-card .report-table tr:hover td {
+    background: #FAFBFC;
+}
+
+.report-section-card .no-records-message {
+    padding: 28px 24px;
+    color: #98A2B3;
+    text-align: center;
+}
+
+/* ========================================
+   Reports Print Styling
+======================================== */
+
+@media print {
+
+    body {
+        background: #FFFFFF;
+        color: #000000;
+    }
+
+    .sidebar,
+    .sidebar-overlay,
+    .sidebar-menu-button,
+    .page-header,
+    .module-card,
+    .print-button {
+        display: none !important;
+    }
+
+    .content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .report-header-card {
+        margin: 0 0 20px;
+        padding: 0 0 15px;
+
+        border: none;
+        border-bottom: 2px solid #000000;
+
+        border-radius: 0;
+    }
+
+    .report-header-card h2 {
+        color: #000000;
+    }
+
+    .report-summary {
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 12px;
+
+        margin-bottom: 22px;
+    }
+
+    .summary-card {
+        padding: 12px;
+
+        border: 1px solid #CCCCCC;
+        border-radius: 4px;
+
+        box-shadow: none;
+    }
+
+    .summary-card h2,
+    .summary-card h3,
+    .profit-value,
+    .loss-value {
+        color: #000000 !important;
+    }
+
+    .records-card {
+        margin-bottom: 22px;
+
+        border: none;
+        border-radius: 0;
+
+        box-shadow: none;
+
+        page-break-inside: avoid;
+    }
+
+    .records-card-header {
+        padding: 10px 0;
+
+        background: #FFFFFF;
+
+        border-bottom: 1px solid #999999;
+    }
+
+    .records-card-header h2 {
+        color: #000000;
+    }
+
+    .report-table {
+        width: 100%;
+
+        font-size: 11px;
+
+        border-collapse: collapse;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 7px;
+
+        border: 1px solid #CCCCCC;
+
+        color: #000000;
+    }
+
+    .report-table th {
+        background: #EEEEEE !important;
+
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .report-table tr {
+        page-break-inside: avoid;
+    }
+
+    .no-records-message {
+        color: #000000;
+    }
+
+}
