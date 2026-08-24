@@ -12,6 +12,37 @@ if(!isset($_SESSION['username'])){
 
 include "config/database.php";
 
+// Retrieve bird batches for the mortality form
+$birdBatches = [];
+
+$batchSql = "
+    SELECT
+        id,
+        batch_name,
+        quantity
+    FROM birds
+    ORDER BY arrival_date DESC, id DESC
+";
+
+$batchResult = mysqli_query(
+    $conn,
+    $batchSql
+);
+
+if($batchResult){
+
+    while(
+        $batchRow =
+        mysqli_fetch_assoc($batchResult)
+    ){
+
+        $birdBatches[] = $batchRow;
+
+    }
+
+}
+
+
 
 // Message variables
 $successMessage = "";
@@ -53,7 +84,7 @@ $notes = "";
 
 
 // Save mortality record
-if(isset($_POST['save'])){
+if(isset($_POST['save']))
 
     $birdBatch = trim(
         $_POST['bird_batch'] ?? ""
@@ -117,87 +148,344 @@ if(isset($_POST['save'])){
     }
 
 
-    else{
+   else{
 
-        $numberDeadValue =
-            (int) $numberDead;
+    $numberDeadValue =
+        (int) $numberDead;
 
 
-        $insertSql = "
-            INSERT INTO mortality
-            (
-                bird_batch,
-                number_dead,
-                cause_of_death,
-                mortality_date,
-                notes
-            )
-            VALUES
-            (
-                ?,
-                ?,
-                ?,
-                ?,
-                ?
-            )
-        ";
+    /*
+    Start a transaction so that the selected batch
+    is checked before the mortality record is saved.
+    */
+    mysqli_begin_transaction($conn);
 
-        $insertStatement =
-            mysqli_prepare(
-                $conn,
-                $insertSql
+
+    // Find the selected bird batch
+    $batchCheckSql = "
+        SELECT
+            id,
+            batch_name,
+            quantity
+        FROM birds
+        WHERE batch_name = ?
+        LIMIT 1
+        FOR UPDATE
+    ";
+
+    $batchCheckStatement =
+        mysqli_prepare(
+            $conn,
+            $batchCheckSql
+        );
+
+
+    if(!$batchCheckStatement){
+
+        mysqli_rollback($conn);
+
+        $errorMessage =
+            "The selected bird batch could not be checked.";
+
+    }else{
+
+
+        mysqli_stmt_bind_param(
+            $batchCheckStatement,
+            "s",
+            $birdBatch
+        );
+
+        mysqli_stmt_execute(
+            $batchCheckStatement
+        );
+
+        $batchCheckResult =
+            mysqli_stmt_get_result(
+                $batchCheckStatement
             );
 
-
-        if($insertStatement){
-
-            mysqli_stmt_bind_param(
-                $insertStatement,
-                "sisss",
-                $birdBatch,
-                $numberDeadValue,
-                $causeOfDeath,
-                $mortalityDate,
-                $notes
+        $batchRecord =
+            mysqli_fetch_assoc(
+                $batchCheckResult
             );
 
-
-            if(
-                mysqli_stmt_execute(
-                    $insertStatement
-                )
-            ){
-
-                $successMessage =
-                    "Mortality record saved successfully.";
+        mysqli_stmt_close(
+            $batchCheckStatement
+        );
 
 
-                // Clear form after saving
-                $birdBatch = "";
+        if(!$batchRecord){
 
-                $numberDead = "";
+            mysqli_rollback($conn);
 
-                $causeOfDeath = "";
-
-                $mortalityDate = "";
-
-                $notes = "";
-
-            }else{
-
-                $errorMessage =
-                    "The mortality record could not be saved.";
-
-            }
-
-            mysqli_stmt_close(
-                $insertStatement
-            );
+            $errorMessage =
+                "The selected bird batch does not exist.";
 
         }else{
 
-            $errorMessage =
-                "Unable to prepare the mortality record.";
+
+            $batchQuantity =
+                (int) $batchRecord['quantity'];
+
+
+            // Calculate birds already sold
+            $soldSql = "
+                SELECT
+                    COALESCE(
+                        SUM(birds_sold),
+                        0
+                    ) AS total_sold
+                FROM sales
+                WHERE bird_batch = ?
+            ";
+
+            $soldStatement =
+                mysqli_prepare(
+                    $conn,
+                    $soldSql
+                );
+
+
+            if(!$soldStatement){
+
+                mysqli_rollback($conn);
+
+                $errorMessage =
+                    "Previous sales could not be checked.";
+
+            }else{
+
+
+                mysqli_stmt_bind_param(
+                    $soldStatement,
+                    "s",
+                    $birdBatch
+                );
+
+                mysqli_stmt_execute(
+                    $soldStatement
+                );
+
+                $soldResult =
+                    mysqli_stmt_get_result(
+                        $soldStatement
+                    );
+
+                $soldRecord =
+                    mysqli_fetch_assoc(
+                        $soldResult
+                    );
+
+                $alreadySold =
+                    (int) (
+                        $soldRecord['total_sold'] ?? 0
+                    );
+
+                mysqli_stmt_close(
+                    $soldStatement
+                );
+
+
+                // Calculate previous mortality
+                $previousMortalitySql = "
+                    SELECT
+                        COALESCE(
+                            SUM(number_dead),
+                            0
+                        ) AS total_dead
+                    FROM mortality
+                    WHERE bird_batch = ?
+                ";
+
+                $previousMortalityStatement =
+                    mysqli_prepare(
+                        $conn,
+                        $previousMortalitySql
+                    );
+
+
+                if(!$previousMortalityStatement){
+
+                    mysqli_rollback($conn);
+
+                    $errorMessage =
+                        "Previous mortality records could not be checked.";
+
+                }else{
+
+
+                    mysqli_stmt_bind_param(
+                        $previousMortalityStatement,
+                        "s",
+                        $birdBatch
+                    );
+
+                    mysqli_stmt_execute(
+                        $previousMortalityStatement
+                    );
+
+                    $previousMortalityResult =
+                        mysqli_stmt_get_result(
+                            $previousMortalityStatement
+                        );
+
+                    $previousMortalityRecord =
+                        mysqli_fetch_assoc(
+                            $previousMortalityResult
+                        );
+
+                    $alreadyDead =
+                        (int) (
+                            $previousMortalityRecord['total_dead'] ?? 0
+                        );
+
+                    mysqli_stmt_close(
+                        $previousMortalityStatement
+                    );
+
+
+                    // Calculate birds currently available
+                    $availableBirds =
+                        $batchQuantity -
+                        $alreadySold -
+                        $alreadyDead;
+
+
+                    if($availableBirds < 0){
+
+                        $availableBirds = 0;
+
+                    }
+
+
+                    // No birds remain
+                    if($availableBirds === 0){
+
+                        mysqli_rollback($conn);
+
+                        $errorMessage =
+                            "No birds remain in the selected batch.";
+
+                    }
+
+
+                    // Mortality cannot exceed remaining stock
+                    elseif(
+                        $numberDeadValue >
+                        $availableBirds
+                    ){
+
+                        mysqli_rollback($conn);
+
+                        $errorMessage =
+                            "You cannot record " .
+                            $numberDeadValue .
+                            " dead bird(s). Only " .
+                            $availableBirds .
+                            " bird(s) remain in " .
+                            htmlspecialchars(
+                                $birdBatch
+                            ) .
+                            ".";
+
+                    }
+
+
+                    else{
+
+
+                        $insertSql = "
+                            INSERT INTO mortality
+                            (
+                                bird_batch,
+                                number_dead,
+                                cause_of_death,
+                                mortality_date,
+                                notes
+                            )
+                            VALUES
+                            (
+                                ?,
+                                ?,
+                                ?,
+                                ?,
+                                ?
+                            )
+                        ";
+
+                        $insertStatement =
+                            mysqli_prepare(
+                                $conn,
+                                $insertSql
+                            );
+
+
+                        if($insertStatement){
+
+                            mysqli_stmt_bind_param(
+                                $insertStatement,
+                                "sisss",
+                                $birdBatch,
+                                $numberDeadValue,
+                                $causeOfDeath,
+                                $mortalityDate,
+                                $notes
+                            );
+
+
+                            if(
+                                mysqli_stmt_execute(
+                                    $insertStatement
+                                )
+                            ){
+
+                                mysqli_commit($conn);
+
+                                $successMessage =
+                                    "Mortality record saved successfully. " .
+                                    $numberDeadValue .
+                                    " bird(s) were recorded from " .
+                                    htmlspecialchars(
+                                        $birdBatch
+                                    ) .
+                                    ".";
+
+
+                                $birdBatch = "";
+                                $numberDead = "";
+                                $causeOfDeath = "";
+                                $mortalityDate = "";
+                                $notes = "";
+
+                            }else{
+
+                                mysqli_rollback($conn);
+
+                                $errorMessage =
+                                    "The mortality record could not be saved.";
+
+                            }
+
+
+                            mysqli_stmt_close(
+                                $insertStatement
+                            );
+
+                        }else{
+
+                            mysqli_rollback($conn);
+
+                            $errorMessage =
+                                "Unable to prepare the mortality record.";
+
+                        }
+
+                    }
+
+                }
+
+            }
 
         }
 
@@ -638,27 +926,62 @@ if(
         <div class="form-grid">
 
 
-            <div class="form-field">
+          <div class="form-field">
 
-                <label for="bird_batch">
-                    Bird Batch
-                </label>
+    <label for="bird_batch">
+        Bird Batch
+    </label>
 
-                <input
-                    type="text"
-                    id="bird_batch"
-                    name="bird_batch"
-                    placeholder="Example: Batch A"
-                    value="<?php
-                    echo htmlspecialchars(
-                        $birdBatch
-                    );
-                    ?>"
-                    required
-                >
+    <select
+        id="bird_batch"
+        name="bird_batch"
+        required
+    >
 
-            </div>
+        <option value="">
+            Select bird batch
+        </option>
 
+        <?php foreach(
+            $birdBatches as $batch
+        ){ ?>
+
+            <option
+                value="<?php
+                echo htmlspecialchars(
+                    $batch['batch_name']
+                );
+                ?>"
+                <?php
+                if(
+                    $birdBatch ===
+                    $batch['batch_name']
+                ){
+                    echo "selected";
+                }
+                ?>
+            >
+                <?php
+                echo htmlspecialchars(
+                    $batch['batch_name']
+                );
+                ?>
+
+                — Originally
+
+                <?php
+                echo (int) $batch['quantity'];
+                ?>
+
+                bird(s)
+
+            </option>
+
+        <?php } ?>
+
+    </select>
+
+</div>
 
             <div class="form-field">
 

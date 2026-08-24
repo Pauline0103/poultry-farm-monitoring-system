@@ -565,9 +565,7 @@ function createBirdPageUrl(
 
     <div class="page-header-content">
 
-        <span class="page-badge">
-            🐔 Poultry Management
-        </span>
+
 
         <h1>
             Bird Management
@@ -581,8 +579,6 @@ function createBirdPageUrl(
     </div>
 
     <div class="page-header-icon">
-
-        🐣
 
     </div>
 
@@ -639,9 +635,7 @@ function createBirdPageUrl(
 
         </div>
 
-        <span class="module-card-icon">
-            ➕
-        </span>
+        
 
     </div>
 
@@ -783,9 +777,7 @@ function createBirdPageUrl(
 
         </div>
 
-        <span class="module-card-icon">
-            🔎
-        </span>
+
 
     </div>
 
@@ -860,9 +852,7 @@ function createBirdPageUrl(
 
     </div>
 
-    <span class="records-card-icon">
-        📋
-    </span>
+    
 
 </div>
 

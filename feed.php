@@ -707,9 +707,7 @@ function createFeedPageUrl(
 
     <div class="page-header-content">
 
-        <span class="page-badge">
-            🌽 Feed Management
-        </span>
+    
 
         <h1>
             Feed Management
@@ -721,11 +719,7 @@ function createFeedPageUrl(
 
     </div>
 
-    <div class="page-header-icon">
 
-        🌾
-
-    </div>
 
 </div>
 
@@ -774,9 +768,7 @@ function createFeedPageUrl(
 
         </div>
 
-        <span class="module-card-icon">
-            🌾
-        </span>
+        
 
     </div>
 
@@ -909,9 +901,7 @@ function createFeedPageUrl(
 
         </div>
 
-        <span class="module-card-icon">
-            🔎
-        </span>
+        
 
     </div>
 
@@ -1006,9 +996,7 @@ function createFeedPageUrl(
 
     </div>
 
-    <span class="records-card-icon">
-        📋
-    </span>
+    
 
 </div>
 
@@ -1025,7 +1013,7 @@ function createFeedPageUrl(
         </p>
 
     <?php } ?>
-    </div>
+    
 
     <div class="pagination-information">
 
@@ -1394,7 +1382,10 @@ function createFeedPageUrl(
 <?php } ?>
 
 
-</div>
+</div> <!-- closes records-card -->
+
+
+</div> <!-- closes content -->
 
 
 </body>

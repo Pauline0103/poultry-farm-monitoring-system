@@ -5811,3 +5811,185 @@ font-size:28px;
     background: #FDEBEC;
     color: #B4232A;
 }
+
+/* ========================================
+   Vaccination Form Layout Fix
+======================================== */
+
+.vaccination-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 28px;
+}
+
+.vaccination-form .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vaccination-form .form-field label {
+    margin: 0;
+}
+
+.vaccination-form input,
+.vaccination-form select,
+.vaccination-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vaccination-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.vaccination-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    margin-top: 24px;
+    padding-top: 20px;
+
+    border-top: 1px solid #EAECF0;
+}
+
+.vaccination-form .primary-action-button,
+.vaccination-form .save-button {
+    width: auto;
+    min-width: 200px;
+    height: auto;
+    min-height: 52px;
+
+    padding: 14px 24px;
+}
+
+
+@media screen and (max-width: 800px) {
+
+    .vaccination-form .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vaccination-form .primary-action-button,
+    .vaccination-form .save-button {
+        width: 100%;
+    }
+
+}
+
+/* ========================================
+   FINAL Vaccination Form Layout Fix
+======================================== */
+
+.modern-module-form.vaccination-form {
+    display: block !important;
+    width: 100% !important;
+}
+
+.vaccination-form .form-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 22px 28px !important;
+    width: 100% !important;
+}
+
+.vaccination-form .form-field {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+.vaccination-form .full-width-field {
+    grid-column: 1 / -1 !important;
+}
+
+.vaccination-form input,
+.vaccination-form select,
+.vaccination-form textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.vaccination-form .form-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+
+    width: 100% !important;
+    height: auto !important;
+
+    margin-top: 24px !important;
+    padding-top: 20px !important;
+
+    border-top: 1px solid #EAECF0;
+}
+
+.vaccination-form .primary-action-button {
+    width: auto !important;
+    min-width: 200px !important;
+
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+
+    padding: 0 24px !important;
+}
+
+
+@media screen and (max-width: 800px) {
+
+    .vaccination-form .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .vaccination-form .full-width-field {
+        grid-column: auto !important;
+    }
+
+    .vaccination-form .primary-action-button {
+        width: 100% !important;
+    }
+
+}
+
+/* Vaccination form overflow fix */
+
+.vaccination-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+}
+
+.vaccination-form .form-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr) !important;
+}
+
+.vaccination-form .form-field {
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+.vaccination-form input,
+.vaccination-form select,
+.vaccination-form textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.vaccination-form .form-actions {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}

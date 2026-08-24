@@ -12,6 +12,36 @@ if(!isset($_SESSION['username'])){
 
 include "config/database.php";
 
+// Retrieve valid bird batches
+$birdBatches = [];
+
+$batchSql = "
+    SELECT
+        id,
+        batch_name,
+        quantity
+    FROM birds
+    ORDER BY arrival_date DESC, id DESC
+";
+
+$batchResult = mysqli_query(
+    $conn,
+    $batchSql
+);
+
+if($batchResult){
+
+    while(
+        $batchRow =
+        mysqli_fetch_assoc($batchResult)
+    ){
+
+        $birdBatches[] = $batchRow;
+
+    }
+
+}
+
 
 // Message variables
 $successMessage = "";
@@ -116,6 +146,52 @@ if(isset($_POST['save'])){
 
     else{
 
+    // Confirm that the selected batch exists
+    $batchCheckSql = "
+        SELECT id
+        FROM birds
+        WHERE batch_name = ?
+        LIMIT 1
+    ";
+
+    $batchCheckStatement =
+        mysqli_prepare(
+            $conn,
+            $batchCheckSql
+        );
+
+    mysqli_stmt_bind_param(
+        $batchCheckStatement,
+        "s",
+        $birdBatch
+    );
+
+    mysqli_stmt_execute(
+        $batchCheckStatement
+    );
+
+    $batchCheckResult =
+        mysqli_stmt_get_result(
+            $batchCheckStatement
+        );
+
+    $validBatch =
+        mysqli_fetch_assoc(
+            $batchCheckResult
+        );
+
+    mysqli_stmt_close(
+        $batchCheckStatement
+    );
+
+
+    if(!$validBatch){
+
+        $errorMessage =
+            "Please select a valid bird batch.";
+
+    }else{
+
         $insertSql = "
             INSERT INTO vaccination
             (
@@ -195,6 +271,8 @@ if(isset($_POST['save'])){
         }
 
     }
+
+}
 
 }
 
@@ -622,35 +700,73 @@ if(
     </div>
 
 
-    <form
-        method="POST"
-        action=""
-        class="modern-module-form"
-    >
+   <form
+    method="POST"
+    action=""
+    class="modern-module-form vaccination-form"
+>
 
         <div class="form-grid">
 
 
             <div class="form-field">
 
-                <label for="bird_batch">
-                    Bird Batch
-                </label>
+            
 
-                <input
-                    type="text"
-                    id="bird_batch"
-                    name="bird_batch"
-                    placeholder="Enter bird batch"
-                    value="<?php
-                    echo htmlspecialchars(
-                        $birdBatch
-                    );
-                    ?>"
-                    required
-                >
+    <label for="bird_batch">
+        Bird Batch
+    </label>
 
-            </div>
+    <select
+        id="bird_batch"
+        name="bird_batch"
+        required
+    >
+
+        <option value="">
+            Select bird batch
+        </option>
+
+        <?php foreach(
+            $birdBatches as $batch
+        ){ ?>
+
+            <option
+                value="<?php
+                echo htmlspecialchars(
+                    $batch['batch_name']
+                );
+                ?>"
+                <?php
+                if(
+                    $birdBatch ===
+                    $batch['batch_name']
+                ){
+                    echo "selected";
+                }
+                ?>
+            >
+                <?php
+                echo htmlspecialchars(
+                    $batch['batch_name']
+                );
+                ?>
+
+                — Originally
+
+                <?php
+                echo (int) $batch['quantity'];
+                ?>
+
+                bird(s)
+
+            </option>
+
+        <?php } ?>
+
+    </select>
+
+</div>
 
 
             <div class="form-field">
