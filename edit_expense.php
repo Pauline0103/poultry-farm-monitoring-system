@@ -2,80 +2,298 @@
 
 session_start();
 
+
+// Protect page
 if(!isset($_SESSION['username'])){
+
     header("Location: login.php");
+
     exit();
+
 }
+
 
 include "config/database.php";
 
-if(!isset($_GET['id']) || !is_numeric($_GET['id'])){
+
+$errorMessage = "";
+
+
+// Validate expense ID
+$id = filter_input(
+    INPUT_GET,
+    "id",
+    FILTER_VALIDATE_INT
+);
+
+
+if(!$id || $id < 1){
 
     header("Location: expenses.php");
+
     exit();
 
 }
 
-$id = (int) $_GET['id'];
 
-$sql = "SELECT * FROM expenses WHERE id = $id";
+// Retrieve expense securely
+$selectSql = "
+    SELECT
+        id,
+        expense_name,
+        expense_category,
+        amount,
+        expense_date,
+        description
+    FROM expenses
+    WHERE id = ?
+    LIMIT 1
+";
 
-$result = mysqli_query($conn, $sql);
+$selectStatement =
+    mysqli_prepare(
+        $conn,
+        $selectSql
+    );
 
-$expense = mysqli_fetch_assoc($result);
 
+if(!$selectStatement){
+
+    header("Location: expenses.php");
+
+    exit();
+
+}
+
+
+mysqli_stmt_bind_param(
+    $selectStatement,
+    "i",
+    $id
+);
+
+mysqli_stmt_execute(
+    $selectStatement
+);
+
+$selectResult =
+    mysqli_stmt_get_result(
+        $selectStatement
+    );
+
+$expense =
+    mysqli_fetch_assoc(
+        $selectResult
+    );
+
+mysqli_stmt_close(
+    $selectStatement
+);
+
+
+// Record does not exist
 if(!$expense){
 
     header("Location: expenses.php");
+
     exit();
 
 }
 
+
+// Preserve current values
+$expenseName =
+    $expense['expense_name'];
+
+$expenseCategory =
+    $expense['expense_category'];
+
+$amount =
+    $expense['amount'];
+
+$expenseDate =
+    $expense['expense_date'];
+
+$description =
+    $expense['description'];
+
+
+// Allowed categories
+$allowedCategories = [
+    "Feed",
+    "Vaccines",
+    "Medicine",
+    "Transport",
+    "Utilities",
+    "Equipment",
+    "Labour",
+    "Other"
+];
+
+
+// Update expense record
 if(isset($_POST['update'])){
 
-    $expense_name = mysqli_real_escape_string(
-        $conn,
-        $_POST['expense_name']
+    $expenseName = trim(
+        $_POST['expense_name'] ?? ""
     );
 
-    $expense_category = mysqli_real_escape_string(
-        $conn,
-        $_POST['expense_category']
+    $expenseCategory = trim(
+        $_POST['expense_category'] ?? ""
     );
 
-    $amount = (float) $_POST['amount'];
-
-    $expense_date = mysqli_real_escape_string(
-        $conn,
-        $_POST['expense_date']
+    $amount = trim(
+        $_POST['amount'] ?? ""
     );
 
-    $description = mysqli_real_escape_string(
-        $conn,
-        $_POST['description']
+    $expenseDate = trim(
+        $_POST['expense_date'] ?? ""
     );
 
-    if($amount > 0){
+    $description = trim(
+        $_POST['description'] ?? ""
+    );
 
-        $sql = "UPDATE expenses SET
 
-                expense_name = '$expense_name',
+    // Required fields
+    if(
+        $expenseName === "" ||
+        $expenseCategory === "" ||
+        $amount === "" ||
+        $expenseDate === ""
+    ){
 
-                expense_category = '$expense_category',
+        $errorMessage =
+            "Please complete all the required fields.";
 
-                amount = '$amount',
+    }
 
-                expense_date = '$expense_date',
 
-                description = '$description'
+    // Validate category
+    elseif(
+        !in_array(
+            $expenseCategory,
+            $allowedCategories,
+            true
+        )
+    ){
 
-                WHERE id = $id";
+        $errorMessage =
+            "Please select a valid expense category.";
 
-        mysqli_query($conn, $sql);
+    }
 
-        header("Location: expenses.php");
 
-        exit();
+    // Validate amount
+    elseif(
+        !is_numeric($amount) ||
+        (float) $amount <= 0
+    ){
+
+        $errorMessage =
+            "The expense amount must be greater than zero.";
+
+    }
+
+
+    // Validate expense date
+    elseif(
+        !DateTime::createFromFormat(
+            "Y-m-d",
+            $expenseDate
+        )
+    ){
+
+        $errorMessage =
+            "Please provide a valid expense date.";
+
+    }
+
+
+    // Prevent future expense date
+    elseif(
+        $expenseDate >
+        date("Y-m-d")
+    ){
+
+        $errorMessage =
+            "The expense date cannot be in the future.";
+
+    }
+
+
+    else{
+
+        $amountValue =
+            (float) $amount;
+
+
+        $updateSql = "
+            UPDATE expenses
+            SET
+                expense_name = ?,
+                expense_category = ?,
+                amount = ?,
+                expense_date = ?,
+                description = ?
+            WHERE id = ?
+        ";
+
+        $updateStatement =
+            mysqli_prepare(
+                $conn,
+                $updateSql
+            );
+
+
+        if($updateStatement){
+
+            mysqli_stmt_bind_param(
+                $updateStatement,
+                "ssdssi",
+                $expenseName,
+                $expenseCategory,
+                $amountValue,
+                $expenseDate,
+                $description,
+                $id
+            );
+
+
+            if(
+                mysqli_stmt_execute(
+                    $updateStatement
+                )
+            ){
+
+                mysqli_stmt_close(
+                    $updateStatement
+                );
+
+                header(
+                    "Location: expenses.php?updated=1"
+                );
+
+                exit();
+
+            }else{
+
+                $errorMessage =
+                    "The expense record could not be updated.";
+
+            }
+
+
+            mysqli_stmt_close(
+                $updateStatement
+            );
+
+        }else{
+
+            $errorMessage =
+                "Unable to prepare the expense update.";
+
+        }
 
     }
 
@@ -85,144 +303,275 @@ if(isset($_POST['update'])){
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Edit Expense</title>
+    <meta charset="UTF-8">
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Expense Record</title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 
 </head>
 
 <body>
 
+
 <?php include "includes/sidebar.php"; ?>
+
 
 <div class="content">
 
-    <h1>Edit Expense Record</h1>
 
-    <form method="POST">
+    <div class="page-header clean-page-header">
 
-        <label>Expense Name</label>
+        <div class="page-header-content">
 
-        <input
-            type="text"
-            name="expense_name"
-            value="<?php echo htmlspecialchars($expense['expense_name']); ?>"
-            required
+            <h1>Edit Expense Record</h1>
+
+            <p>
+                Update farm expense information.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <?php if($errorMessage !== ""){ ?>
+
+        <div class="form-message error-message">
+
+            <?php
+            echo htmlspecialchars(
+                $errorMessage
+            );
+            ?>
+
+        </div>
+
+    <?php } ?>
+
+
+    <div class="module-card">
+
+        <div class="module-card-header">
+
+            <div>
+
+                <h2>Expense Details</h2>
+
+                <p>
+                    Make the required changes
+                    and save the updated record.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action=""
+            class="modern-module-form"
         >
 
-
-        <label>Expense Category</label>
-
-        <select name="expense_category" required>
-
-            <option value="">
-                Select an expense category
-            </option>
-
-            <option
-                value="Feed"
-                <?php if($expense['expense_category'] == "Feed") echo "selected"; ?>
-            >
-                Feed
-            </option>
-
-            <option
-                value="Vaccines"
-                <?php if($expense['expense_category'] == "Vaccines") echo "selected"; ?>
-            >
-                Vaccines
-            </option>
-
-            <option
-                value="Medicine"
-                <?php if($expense['expense_category'] == "Medicine") echo "selected"; ?>
-            >
-                Medicine
-            </option>
-
-            <option
-                value="Transport"
-                <?php if($expense['expense_category'] == "Transport") echo "selected"; ?>
-            >
-                Transport
-            </option>
-
-            <option
-                value="Utilities"
-                <?php if($expense['expense_category'] == "Utilities") echo "selected"; ?>
-            >
-                Electricity and Water
-            </option>
-
-            <option
-                value="Equipment"
-                <?php if($expense['expense_category'] == "Equipment") echo "selected"; ?>
-            >
-                Equipment
-            </option>
-
-            <option
-                value="Labour"
-                <?php if($expense['expense_category'] == "Labour") echo "selected"; ?>
-            >
-                Labour
-            </option>
-
-            <option
-                value="Other"
-                <?php if($expense['expense_category'] == "Other") echo "selected"; ?>
-            >
-                Other
-            </option>
-
-        </select>
+            <div class="form-grid">
 
 
-        <label>Amount</label>
+                <div class="form-field">
 
-        <input
-            type="number"
-            name="amount"
-            step="0.01"
-            min="0.01"
-            value="<?php echo $expense['amount']; ?>"
-            required
-        >
+                    <label for="expense_name">
+                        Expense Name
+                    </label>
 
+                    <input
+                        type="text"
+                        id="expense_name"
+                        name="expense_name"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $expenseName
+                        );
+                        ?>"
+                        required
+                    >
 
-        <label>Expense Date</label>
-
-        <input
-            type="date"
-            name="expense_date"
-            value="<?php echo $expense['expense_date']; ?>"
-            required
-        >
-
-
-        <label>Description</label>
-
-        <textarea
-            name="description"
-            rows="4"
-        ><?php echo htmlspecialchars($expense['description']); ?></textarea>
+                </div>
 
 
-        <button
-            type="submit"
-            name="update"
-            class="save-button"
-        >
-            Update Expense
-        </button>
+                <div class="form-field">
 
-    </form>
+                    <label for="expense_category">
+                        Expense Category
+                    </label>
+
+                    <select
+                        id="expense_category"
+                        name="expense_category"
+                        required
+                    >
+
+                        <option value="">
+                            Select an expense category
+                        </option>
+
+
+                        <?php foreach(
+                            $allowedCategories
+                            as $category
+                        ){ ?>
+
+                            <option
+                                value="<?php
+                                echo htmlspecialchars(
+                                    $category
+                                );
+                                ?>"
+                                <?php
+                                if(
+                                    $expenseCategory ===
+                                    $category
+                                ){
+                                    echo "selected";
+                                }
+                                ?>
+                            >
+
+                                <?php
+
+                                if(
+                                    $category ===
+                                    "Utilities"
+                                ){
+
+                                    echo
+                                        "Electricity and Water";
+
+                                }else{
+
+                                    echo htmlspecialchars(
+                                        $category
+                                    );
+
+                                }
+
+                                ?>
+
+                            </option>
+
+                        <?php } ?>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label for="amount">
+                        Amount (K)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        min="0.01"
+                        step="0.01"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $amount
+                        );
+                        ?>"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label for="expense_date">
+                        Expense Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="expense_date"
+                        name="expense_date"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $expenseDate
+                        );
+                        ?>"
+                        max="<?php
+                        echo date('Y-m-d');
+                        ?>"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-field full-width-field">
+
+                    <label for="description">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                    ><?php
+                    echo htmlspecialchars(
+                        $description
+                    );
+                    ?></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    name="update"
+                    class="primary-action-button"
+                >
+                    Update Expense
+                </button>
+
+
+                <a
+                    href="expenses.php"
+                    class="secondary-action-button"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
 
 </div>
+
 
 </body>
 

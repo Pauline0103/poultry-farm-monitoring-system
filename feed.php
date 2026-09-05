@@ -18,6 +18,17 @@ $successMessage = "";
 
 $errorMessage = "";
 
+// Show message after a feed record is updated
+if(
+    isset($_GET['updated']) &&
+    $_GET['updated'] === "1"
+){
+
+    $successMessage =
+        "Feed record updated successfully.";
+
+}
+
 
 // Search values
 $search = trim($_GET['search'] ?? "");
@@ -118,13 +129,30 @@ if(isset($_POST['save'])){
     }
 
 
-    // Prevent future purchase dates
-    elseif($purchaseDate > date("Y-m-d")){
+   // Validate purchase date
+elseif(
+    !DateTime::createFromFormat(
+        "Y-m-d",
+        $purchaseDate
+    )
+){
 
-        $errorMessage =
-            "The purchase date cannot be in the future.";
+    $errorMessage =
+        "Please provide a valid purchase date.";
 
-    }
+}
+
+
+// Prevent future purchase dates
+elseif(
+    $purchaseDate >
+    date("Y-m-d")
+){
+
+    $errorMessage =
+        "The purchase date cannot be in the future.";
+
+}
 
 
     else{
@@ -1059,7 +1087,7 @@ function createFeedPageUrl(
 
                 <th>Feed Name</th>
 
-                <th>Quantity</th>
+               <th>Quantity (Bags)</th>
 
                 <th>Price</th>
 

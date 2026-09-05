@@ -17,6 +17,28 @@ include "config/database.php";
 $successMessage = "";
 $errorMessage = "";
 
+// Show message after an expense record is updated
+if(
+    isset($_GET['updated']) &&
+    $_GET['updated'] === "1"
+){
+
+    $successMessage =
+        "Expense record updated successfully.";
+
+}
+
+
+// Show message after an expense record is deleted
+if(
+    isset($_GET['deleted']) &&
+    $_GET['deleted'] === "1"
+){
+
+    $successMessage =
+        "Expense record deleted successfully.";
+
+}
 
 // Search and filter values
 $search = trim($_GET['search'] ?? "");
@@ -98,14 +120,30 @@ if(isset($_POST['save'])){
 
 
     // Prevent future expense dates
-    elseif(
-        $expenseDate > date("Y-m-d")
-    ){
+   // Validate expense date
+elseif(
+    !DateTime::createFromFormat(
+        "Y-m-d",
+        $expenseDate
+    )
+){
 
-        $errorMessage =
-            "The expense date cannot be in the future.";
+    $errorMessage =
+        "Please provide a valid expense date.";
 
-    }
+}
+
+
+// Prevent future expense dates
+elseif(
+    $expenseDate >
+    date("Y-m-d")
+){
+
+    $errorMessage =
+        "The expense date cannot be in the future.";
+
+}
 
 
     else{

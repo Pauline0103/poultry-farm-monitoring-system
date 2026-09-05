@@ -2,39 +2,32 @@
 
 session_start();
 
+
+// Protect the page
+if(!isset($_SESSION['username'])){
+
+    header("Location: login.php");
+
+    exit();
+
+}
+
+
 include "config/database.php";
 
-$id = $_GET['id'];
 
-$sql = "SELECT * FROM feed WHERE id='$id'";
+$errorMessage = "";
 
-$result = mysqli_query($conn,$sql);
 
-$row = mysqli_fetch_assoc($result);
+// Validate feed record ID
+$id = filter_input(
+    INPUT_GET,
+    "id",
+    FILTER_VALIDATE_INT
+);
 
-if(isset($_POST['update'])){
 
-    $feed_name = $_POST['feed_name'];
-    $quantity = $_POST['quantity'];
-    $price = $_POST['price'];
-    $supplier = $_POST['supplier'];
-    $purchase_date = $_POST['purchase_date'];
-
-    $sql = "UPDATE feed SET
-
-    feed_name='$feed_name',
-
-    quantity='$quantity',
-
-    price='$price',
-
-    supplier='$supplier',
-
-    purchase_date='$purchase_date'
-
-    WHERE id='$id'";
-
-    mysqli_query($conn,$sql);
+if(!$id || $id < 1){
 
     header("Location: feed.php");
 
@@ -42,71 +35,492 @@ if(isset($_POST['update'])){
 
 }
 
+
+// Retrieve the feed record securely
+$selectSql = "
+    SELECT
+        id,
+        feed_name,
+        quantity,
+        price,
+        supplier,
+        purchase_date
+    FROM feed
+    WHERE id = ?
+    LIMIT 1
+";
+
+$selectStatement =
+    mysqli_prepare(
+        $conn,
+        $selectSql
+    );
+
+
+if(!$selectStatement){
+
+    header("Location: feed.php");
+
+    exit();
+
+}
+
+
+mysqli_stmt_bind_param(
+    $selectStatement,
+    "i",
+    $id
+);
+
+mysqli_stmt_execute(
+    $selectStatement
+);
+
+$selectResult =
+    mysqli_stmt_get_result(
+        $selectStatement
+    );
+
+$row =
+    mysqli_fetch_assoc(
+        $selectResult
+    );
+
+mysqli_stmt_close(
+    $selectStatement
+);
+
+
+// Record does not exist
+if(!$row){
+
+    header("Location: feed.php");
+
+    exit();
+
+}
+
+
+// Preserve current values
+$feedName =
+    $row['feed_name'];
+
+$quantity =
+    $row['quantity'];
+
+$price =
+    $row['price'];
+
+$supplier =
+    $row['supplier'];
+
+$purchaseDate =
+    $row['purchase_date'];
+
+
+// Update feed record
+if(isset($_POST['update'])){
+
+    $feedName = trim(
+        $_POST['feed_name'] ?? ""
+    );
+
+    $quantity = trim(
+        $_POST['quantity'] ?? ""
+    );
+
+    $price = trim(
+        $_POST['price'] ?? ""
+    );
+
+    $supplier = trim(
+        $_POST['supplier'] ?? ""
+    );
+
+    $purchaseDate = trim(
+        $_POST['purchase_date'] ?? ""
+    );
+
+
+    // Required fields
+    if(
+        $feedName === "" ||
+        $quantity === "" ||
+        $price === "" ||
+        $supplier === "" ||
+        $purchaseDate === ""
+    ){
+
+        $errorMessage =
+            "Please complete all the required fields.";
+
+    }
+
+
+    // Validate quantity
+    elseif(
+        !filter_var(
+            $quantity,
+            FILTER_VALIDATE_INT
+        ) ||
+        (int) $quantity <= 0
+    ){
+
+        $errorMessage =
+            "Quantity must be a whole number greater than zero.";
+
+    }
+
+
+    // Validate price
+    elseif(
+        !is_numeric($price) ||
+        (float) $price <= 0
+    ){
+
+        $errorMessage =
+            "Price must be greater than zero.";
+
+    }
+
+
+    // Validate purchase date
+    elseif(
+        !DateTime::createFromFormat(
+            "Y-m-d",
+            $purchaseDate
+        )
+    ){
+
+        $errorMessage =
+            "Please provide a valid purchase date.";
+
+    }
+
+
+    // Prevent future purchase date
+    elseif(
+        $purchaseDate >
+        date("Y-m-d")
+    ){
+
+        $errorMessage =
+            "The purchase date cannot be in the future.";
+
+    }
+
+
+    else{
+
+        $quantityNumber =
+            (int) $quantity;
+
+        $priceNumber =
+            (float) $price;
+
+
+        $updateSql = "
+            UPDATE feed
+            SET
+                feed_name = ?,
+                quantity = ?,
+                price = ?,
+                supplier = ?,
+                purchase_date = ?
+            WHERE id = ?
+        ";
+
+        $updateStatement =
+            mysqli_prepare(
+                $conn,
+                $updateSql
+            );
+
+
+        if($updateStatement){
+
+            mysqli_stmt_bind_param(
+                $updateStatement,
+                "sidssi",
+                $feedName,
+                $quantityNumber,
+                $priceNumber,
+                $supplier,
+                $purchaseDate,
+                $id
+            );
+
+
+            if(
+                mysqli_stmt_execute(
+                    $updateStatement
+                )
+            ){
+
+                mysqli_stmt_close(
+                    $updateStatement
+                );
+
+                header(
+                    "Location: feed.php?updated=1"
+                );
+
+                exit();
+
+            }else{
+
+                $errorMessage =
+                    "The feed record could not be updated.";
+
+            }
+
+
+            mysqli_stmt_close(
+                $updateStatement
+            );
+
+        }else{
+
+            $errorMessage =
+                "Unable to prepare the feed update.";
+
+        }
+
+    }
+
+}
+
 ?>
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 <head>
 
-<title>Edit Feed</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="assets/css/style.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Feed Record</title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 
 </head>
 
 <body>
 
+
 <?php include "includes/sidebar.php"; ?>
+
 
 <div class="content">
 
-<h2>Edit Feed Record</h2>
 
-<form method="POST">
+    <div class="page-header clean-page-header">
 
-<label>Feed Name</label>
+        <div class="page-header-content">
 
-<input type="text" name="feed_name"
-value="<?php echo $row['feed_name']; ?>" required>
+            <h1>Edit Feed Record</h1>
 
-<label>Quantity</label>
+            <p>
+                Update feed purchase information.
+            </p>
 
-<input type="number" name="quantity"
-value="<?php echo $row['quantity']; ?>" required>
+        </div>
 
-<label>Price</label>
+    </div>
 
-<input type="number" step="0.01"
-name="price"
-value="<?php echo $row['price']; ?>" required>
 
-<label>Supplier</label>
+    <?php if($errorMessage !== ""){ ?>
 
-<input type="text"
-name="supplier"
-value="<?php echo $row['supplier']; ?>" required>
+        <div class="form-message error-message">
 
-<label>Purchase Date</label>
+            <?php
+            echo htmlspecialchars(
+                $errorMessage
+            );
+            ?>
 
-<input type="date"
-name="purchase_date"
-value="<?php echo $row['purchase_date']; ?>" required>
+        </div>
 
-<br><br>
+    <?php } ?>
 
-<button type="submit"
-name="update"
-class="save-button">
 
-Update Feed
+    <div class="module-card">
 
-</button>
+        <div class="module-card-header">
 
-</form>
+            <div>
+
+                <h2>Feed Details</h2>
+
+                <p>
+                    Make the required changes
+                    and save the updated record.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action=""
+            class="modern-module-form"
+        >
+
+            <div class="form-grid">
+
+
+                <div class="form-field">
+
+                    <label for="feed_name">
+                        Feed Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="feed_name"
+                        name="feed_name"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $feedName
+                        );
+                        ?>"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label for="supplier">
+                        Supplier
+                    </label>
+
+                    <input
+                        type="text"
+                        id="supplier"
+                        name="supplier"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $supplier
+                        );
+                        ?>"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label for="quantity">
+                        Quantity (Bags)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $quantity
+                        );
+                        ?>"
+                        min="1"
+                        step="1"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label for="price">
+                        Price (K)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $price
+                        );
+                        ?>"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label for="purchase_date">
+                        Purchase Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="purchase_date"
+                        name="purchase_date"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $purchaseDate
+                        );
+                        ?>"
+                        max="<?php
+                        echo date('Y-m-d');
+                        ?>"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    name="update"
+                    class="primary-action-button"
+                >
+                    Update Feed
+                </button>
+
+
+                <a
+                    href="feed.php"
+                    class="secondary-action-button"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
 
 </div>
+
 
 </body>
 
