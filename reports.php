@@ -24,68 +24,279 @@ $errorMessage = "";
 
 if(isset($_POST['generate'])){
 
-    $start_date = mysqli_real_escape_string(
+   $start_date = trim(
+    $_POST['start_date'] ?? ""
+);
+
+$end_date = trim(
+    $_POST['end_date'] ?? ""
+);
+
+
+// Validate required dates
+if(
+    $start_date === "" ||
+    $end_date === ""
+){
+
+    $errorMessage =
+        "Please select both the start date and end date.";
+
+}
+
+
+// Validate start date
+elseif(
+    !DateTime::createFromFormat(
+        "Y-m-d",
+        $start_date
+    ) ||
+    DateTime::createFromFormat(
+        "Y-m-d",
+        $start_date
+    )->format("Y-m-d") !== $start_date
+){
+
+    $errorMessage =
+        "Please provide a valid start date.";
+
+}
+
+
+// Validate end date
+elseif(
+    !DateTime::createFromFormat(
+        "Y-m-d",
+        $end_date
+    ) ||
+    DateTime::createFromFormat(
+        "Y-m-d",
+        $end_date
+    )->format("Y-m-d") !== $end_date
+){
+
+    $errorMessage =
+        "Please provide a valid end date.";
+
+}
+
+
+// Start date must come before end date
+elseif(
+    $start_date > $end_date
+){
+
+    $errorMessage =
+        "The start date cannot be later than the end date.";
+
+}
+
+
+// Reports should not use future dates
+elseif(
+    $start_date > date("Y-m-d") ||
+    $end_date > date("Y-m-d")
+){
+
+    $errorMessage =
+        "Report dates cannot be in the future.";
+
+}
+
+
+else{
+
+       // Retrieve sales records for the selected period
+$salesQuery = "
+    SELECT *
+    FROM sales
+    WHERE sale_date BETWEEN ? AND ?
+    ORDER BY sale_date DESC
+";
+
+$salesStatement =
+    mysqli_prepare(
         $conn,
-        $_POST['start_date']
+        $salesQuery
     );
 
-    $end_date = mysqli_real_escape_string(
-        $conn,
-        $_POST['end_date']
+if($salesStatement){
+
+    mysqli_stmt_bind_param(
+        $salesStatement,
+        "ss",
+        $start_date,
+        $end_date
     );
 
-    if($start_date > $end_date){
+    mysqli_stmt_execute(
+        $salesStatement
+    );
 
-        $errorMessage = "The start date cannot be later than the end date.";
+    $salesResult =
+        mysqli_stmt_get_result(
+            $salesStatement
+        );
 
-    }else{
+}else{
 
-        // Retrieve sales records for the selected period
-        $salesQuery = "SELECT *
-                       FROM sales
-                       WHERE sale_date BETWEEN '$start_date' AND '$end_date'
-                       ORDER BY sale_date DESC";
+    $errorMessage =
+        "The sales report could not be generated.";
 
-        $salesResult = mysqli_query($conn, $salesQuery);
-
-
-        // Retrieve expense records for the selected period
-        $expenseQuery = "SELECT *
-                         FROM expenses
-                         WHERE expense_date BETWEEN '$start_date' AND '$end_date'
-                         ORDER BY expense_date DESC";
-
-        $expenseResult = mysqli_query($conn, $expenseQuery);
+}
 
 
-        // Calculate total sales
-        $salesTotalQuery = "SELECT SUM(total_amount) AS total_sales
-                            FROM sales
-                            WHERE sale_date BETWEEN '$start_date' AND '$end_date'";
+// Retrieve expense records for the selected period
+$expenseQuery = "
+    SELECT *
+    FROM expenses
+    WHERE expense_date BETWEEN ? AND ?
+    ORDER BY expense_date DESC
+";
 
-        $salesTotalResult = mysqli_query($conn, $salesTotalQuery);
+$expenseStatement =
+    mysqli_prepare(
+        $conn,
+        $expenseQuery
+    );
 
-        $salesTotalRow = mysqli_fetch_assoc($salesTotalResult);
+if($expenseStatement){
 
-        $totalSales = $salesTotalRow['total_sales'] ?? 0;
+    mysqli_stmt_bind_param(
+        $expenseStatement,
+        "ss",
+        $start_date,
+        $end_date
+    );
+
+    mysqli_stmt_execute(
+        $expenseStatement
+    );
+
+    $expenseResult =
+        mysqli_stmt_get_result(
+            $expenseStatement
+        );
+
+}else{
+
+    $errorMessage =
+        "The expense report could not be generated.";
+
+}
 
 
-        // Calculate total expenses
-        $expenseTotalQuery = "SELECT SUM(amount) AS total_expenses
-                              FROM expenses
-                              WHERE expense_date BETWEEN '$start_date' AND '$end_date'";
+// Calculate total sales
+$salesTotalQuery = "
+    SELECT
+        COALESCE(
+            SUM(total_amount),
+            0
+        ) AS total_sales
+    FROM sales
+    WHERE sale_date BETWEEN ? AND ?
+";
 
-        $expenseTotalResult = mysqli_query($conn, $expenseTotalQuery);
+$salesTotalStatement =
+    mysqli_prepare(
+        $conn,
+        $salesTotalQuery
+    );
 
-        $expenseTotalRow = mysqli_fetch_assoc($expenseTotalResult);
+if($salesTotalStatement){
 
-        $totalExpenses = $expenseTotalRow['total_expenses'] ?? 0;
+    mysqli_stmt_bind_param(
+        $salesTotalStatement,
+        "ss",
+        $start_date,
+        $end_date
+    );
+
+    mysqli_stmt_execute(
+        $salesTotalStatement
+    );
+
+    $salesTotalResult =
+        mysqli_stmt_get_result(
+            $salesTotalStatement
+        );
+
+    $salesTotalRow =
+        mysqli_fetch_assoc(
+            $salesTotalResult
+        );
+
+    $totalSales =
+        (float) (
+            $salesTotalRow['total_sales'] ?? 0
+        );
+
+}else{
+
+    $errorMessage =
+        "The total sales could not be calculated.";
+
+}
 
 
-        // Calculate profit
-        $profit = $totalSales - $totalExpenses;
+// Calculate total expenses
+$expenseTotalQuery = "
+    SELECT
+        COALESCE(
+            SUM(amount),
+            0
+        ) AS total_expenses
+    FROM expenses
+    WHERE expense_date BETWEEN ? AND ?
+";
 
-        // Generate bird batch performance information
+$expenseTotalStatement =
+    mysqli_prepare(
+        $conn,
+        $expenseTotalQuery
+    );
+
+if($expenseTotalStatement){
+
+    mysqli_stmt_bind_param(
+        $expenseTotalStatement,
+        "ss",
+        $start_date,
+        $end_date
+    );
+
+    mysqli_stmt_execute(
+        $expenseTotalStatement
+    );
+
+    $expenseTotalResult =
+        mysqli_stmt_get_result(
+            $expenseTotalStatement
+        );
+
+    $expenseTotalRow =
+        mysqli_fetch_assoc(
+            $expenseTotalResult
+        );
+
+    $totalExpenses =
+        (float) (
+            $expenseTotalRow['total_expenses'] ?? 0
+        );
+
+}else{
+
+    $errorMessage =
+        "The total expenses could not be calculated.";
+
+}
+
+
+// Calculate profit
+$profit =
+    $totalSales -
+    $totalExpenses;
+     // Generate bird batch performance information
 $batchPerformanceQuery = "
     SELECT
 
@@ -98,30 +309,86 @@ $batchPerformanceQuery = "
                 SELECT SUM(m.number_dead)
                 FROM mortality m
                 WHERE m.bird_batch = b.batch_name
-                AND m.mortality_date BETWEEN '$start_date' AND '$end_date'
+                AND m.mortality_date
+                    BETWEEN ? AND ?
             ),
             0
-        ) AS birds_dead,
+        ) AS period_birds_dead,
 
         COALESCE(
             (
                 SELECT SUM(s.birds_sold)
                 FROM sales s
                 WHERE s.bird_batch = b.batch_name
-                AND s.sale_date BETWEEN '$start_date' AND '$end_date'
+                AND s.sale_date
+                    BETWEEN ? AND ?
             ),
             0
-        ) AS birds_sold
+        ) AS period_birds_sold,
+
+        COALESCE(
+            (
+                SELECT SUM(m.number_dead)
+                FROM mortality m
+                WHERE m.bird_batch = b.batch_name
+                AND m.mortality_date <= ?
+            ),
+            0
+        ) AS total_birds_dead,
+
+        COALESCE(
+            (
+                SELECT SUM(s.birds_sold)
+                FROM sales s
+                WHERE s.bird_batch = b.batch_name
+                AND s.sale_date <= ?
+            ),
+            0
+        ) AS total_birds_sold
 
     FROM birds b
 
     ORDER BY b.id DESC
 ";
 
-$batchPerformanceResult = mysqli_query(
-    $conn,
-    $batchPerformanceQuery
-);
+
+$batchPerformanceStatement =
+    mysqli_prepare(
+        $conn,
+        $batchPerformanceQuery
+    );
+
+
+if($batchPerformanceStatement){
+
+    mysqli_stmt_bind_param(
+        $batchPerformanceStatement,
+        "ssssss",
+        $start_date,
+        $end_date,
+        $start_date,
+        $end_date,
+        $end_date,
+        $end_date
+    );
+
+    mysqli_stmt_execute(
+        $batchPerformanceStatement
+    );
+
+    $batchPerformanceResult =
+        mysqli_stmt_get_result(
+            $batchPerformanceStatement
+        );
+
+}else{
+
+    $batchPerformanceResult = false;
+
+    $errorMessage =
+        "The bird batch performance report could not be generated.";
+
+}
 
     }
 
@@ -197,6 +464,7 @@ $batchPerformanceResult = mysqli_query(
                     type="date"
                     id="start_date"
                     name="start_date"
+                    max="<?php echo date('Y-m-d'); ?>"
                     value="<?php
                     echo htmlspecialchars(
                         $start_date
@@ -218,6 +486,7 @@ $batchPerformanceResult = mysqli_query(
                     type="date"
                     id="end_date"
                     name="end_date"
+                    max="<?php echo date('Y-m-d'); ?>"
                     value="<?php
                     echo htmlspecialchars(
                         $end_date
@@ -504,9 +773,9 @@ $batchPerformanceResult = mysqli_query(
 
             <th>Bird Batch</th>
             <th>Birds Placed</th>
-            <th>Birds Dead</th>
-            <th>Birds Sold</th>
-            <th>Estimated Remaining</th>
+           <th>Period Mortality</th>
+<th>Period Sales</th>
+<th>Remaining at End Date</th>
             <th>Mortality Rate</th>
             <th>Status</th>
 
@@ -520,14 +789,22 @@ $batchPerformanceResult = mysqli_query(
 
             $birdsPlaced = (int) $batch['birds_placed'];
 
-            $birdsDead = (int) $batch['birds_dead'];
+           $birdsDead =
+    (int) $batch['period_birds_dead'];
 
-            $birdsSold = (int) $batch['birds_sold'];
+$birdsSold =
+    (int) $batch['period_birds_sold'];
 
-            $birdsRemaining =
-                $birdsPlaced -
-                $birdsDead -
-                $birdsSold;
+$totalBirdsDead =
+    (int) $batch['total_birds_dead'];
+
+$totalBirdsSold =
+    (int) $batch['total_birds_sold'];
+
+$birdsRemaining =
+    $birdsPlaced -
+    $totalBirdsDead -
+    $totalBirdsSold;
 
             if($birdsRemaining < 0){
 

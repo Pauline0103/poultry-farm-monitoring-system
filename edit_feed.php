@@ -172,14 +172,14 @@ if(isset($_POST['update'])){
     }
 
 
-    // Validate price
+    // Validate price per bag
     elseif(
         !is_numeric($price) ||
         (float) $price <= 0
     ){
 
         $errorMessage =
-            "Price must be greater than zero.";
+            "Price per bag must be greater than zero.";
 
     }
 
@@ -189,7 +189,11 @@ if(isset($_POST['update'])){
         !DateTime::createFromFormat(
             "Y-m-d",
             $purchaseDate
-        )
+        ) ||
+        DateTime::createFromFormat(
+            "Y-m-d",
+            $purchaseDate
+        )->format("Y-m-d") !== $purchaseDate
     ){
 
         $errorMessage =
@@ -218,26 +222,48 @@ if(isset($_POST['update'])){
         $priceNumber =
             (float) $price;
 
-
-        $updateSql = "
-            UPDATE feed
-            SET
-                feed_name = ?,
-                quantity = ?,
-                price = ?,
-                supplier = ?,
-                purchase_date = ?
-            WHERE id = ?
-        ";
-
-        $updateStatement =
-            mysqli_prepare(
-                $conn,
-                $updateSql
-            );
+        $totalFeedCost =
+            $quantityNumber *
+            $priceNumber;
 
 
-        if($updateStatement){
+        mysqli_begin_transaction(
+            $conn
+        );
+
+
+        try{
+
+            // =====================================
+            // Update Feed Management record
+            // =====================================
+
+            $updateSql = "
+                UPDATE feed
+                SET
+                    feed_name = ?,
+                    quantity = ?,
+                    price = ?,
+                    supplier = ?,
+                    purchase_date = ?
+                WHERE id = ?
+            ";
+
+            $updateStatement =
+                mysqli_prepare(
+                    $conn,
+                    $updateSql
+                );
+
+
+            if(!$updateStatement){
+
+                throw new Exception(
+                    "Unable to prepare the feed update."
+                );
+
+            }
+
 
             mysqli_stmt_bind_param(
                 $updateStatement,
@@ -252,25 +278,14 @@ if(isset($_POST['update'])){
 
 
             if(
-                mysqli_stmt_execute(
+                !mysqli_stmt_execute(
                     $updateStatement
                 )
             ){
 
-                mysqli_stmt_close(
-                    $updateStatement
+                throw new Exception(
+                    "The feed record could not be updated."
                 );
-
-                header(
-                    "Location: feed.php?updated=1"
-                );
-
-                exit();
-
-            }else{
-
-                $errorMessage =
-                    "The feed record could not be updated.";
 
             }
 
@@ -279,10 +294,242 @@ if(isset($_POST['update'])){
                 $updateStatement
             );
 
-        }else{
+
+            // =====================================
+            // Prepare linked expense information
+            // =====================================
+
+            $expenseName =
+                $feedName .
+                " feed purchase";
+
+            $expenseCategory =
+                "Feed";
+
+            $expenseDescription =
+                $quantityNumber .
+                " bag(s) at K" .
+                number_format(
+                    $priceNumber,
+                    2
+                ) .
+                " per bag from " .
+                $supplier;
+
+
+            // =====================================
+            // Check for existing linked expense
+            // =====================================
+
+            $checkExpenseSql = "
+                SELECT id
+                FROM expenses
+                WHERE feed_id = ?
+                LIMIT 1
+            ";
+
+            $checkExpenseStatement =
+                mysqli_prepare(
+                    $conn,
+                    $checkExpenseSql
+                );
+
+
+            if(!$checkExpenseStatement){
+
+                throw new Exception(
+                    "Unable to check the linked feed expense."
+                );
+
+            }
+
+
+            mysqli_stmt_bind_param(
+                $checkExpenseStatement,
+                "i",
+                $id
+            );
+
+            mysqli_stmt_execute(
+                $checkExpenseStatement
+            );
+
+            $checkExpenseResult =
+                mysqli_stmt_get_result(
+                    $checkExpenseStatement
+                );
+
+            $linkedExpense =
+                mysqli_fetch_assoc(
+                    $checkExpenseResult
+                );
+
+            mysqli_stmt_close(
+                $checkExpenseStatement
+            );
+
+
+            // =====================================
+            // Update linked expense if it exists
+            // =====================================
+
+            if($linkedExpense){
+
+                $expenseUpdateSql = "
+                    UPDATE expenses
+                    SET
+                        expense_name = ?,
+                        expense_category = ?,
+                        amount = ?,
+                        expense_date = ?,
+                        description = ?
+                    WHERE feed_id = ?
+                ";
+
+                $expenseUpdateStatement =
+                    mysqli_prepare(
+                        $conn,
+                        $expenseUpdateSql
+                    );
+
+
+                if(!$expenseUpdateStatement){
+
+                    throw new Exception(
+                        "Unable to prepare the linked expense update."
+                    );
+
+                }
+
+
+                mysqli_stmt_bind_param(
+                    $expenseUpdateStatement,
+                    "ssdssi",
+                    $expenseName,
+                    $expenseCategory,
+                    $totalFeedCost,
+                    $purchaseDate,
+                    $expenseDescription,
+                    $id
+                );
+
+
+                if(
+                    !mysqli_stmt_execute(
+                        $expenseUpdateStatement
+                    )
+                ){
+
+                    throw new Exception(
+                        "The linked feed expense could not be updated."
+                    );
+
+                }
+
+
+                mysqli_stmt_close(
+                    $expenseUpdateStatement
+                );
+
+            }
+
+
+            // =====================================
+            // Create linked expense for older
+            // Feed records that do not have one
+            // =====================================
+
+            else{
+
+                $expenseInsertSql = "
+                    INSERT INTO expenses
+                    (
+                        feed_id,
+                        expense_name,
+                        expense_category,
+                        amount,
+                        expense_date,
+                        description
+                    )
+                    VALUES
+                    (
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?
+                    )
+                ";
+
+                $expenseInsertStatement =
+                    mysqli_prepare(
+                        $conn,
+                        $expenseInsertSql
+                    );
+
+
+                if(!$expenseInsertStatement){
+
+                    throw new Exception(
+                        "Unable to prepare the feed expense."
+                    );
+
+                }
+
+
+                mysqli_stmt_bind_param(
+                    $expenseInsertStatement,
+                    "issdss",
+                    $id,
+                    $expenseName,
+                    $expenseCategory,
+                    $totalFeedCost,
+                    $purchaseDate,
+                    $expenseDescription
+                );
+
+
+                if(
+                    !mysqli_stmt_execute(
+                        $expenseInsertStatement
+                    )
+                ){
+
+                    throw new Exception(
+                        "The feed expense could not be created."
+                    );
+
+                }
+
+
+                mysqli_stmt_close(
+                    $expenseInsertStatement
+                );
+
+            }
+
+
+            mysqli_commit(
+                $conn
+            );
+
+
+            header(
+                "Location: feed.php?updated=1"
+            );
+
+            exit();
+
+
+        }catch(Exception $exception){
+
+            mysqli_rollback(
+                $conn
+            );
 
             $errorMessage =
-                "Unable to prepare the feed update.";
+                $exception->getMessage();
 
         }
 
@@ -448,7 +695,7 @@ if(isset($_POST['update'])){
                 <div class="form-field">
 
                     <label for="price">
-                        Price (K)
+                        Price per Bag (K)
                     </label>
 
                     <input

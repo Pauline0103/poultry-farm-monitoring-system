@@ -29,6 +29,29 @@ if(
 
 }
 
+// Show message after a feed record is deleted
+if(
+    isset($_GET['deleted']) &&
+    $_GET['deleted'] === "1"
+){
+
+    $successMessage =
+        "Feed record and linked expense deleted successfully.";
+
+}
+
+
+// Show message if feed deletion fails
+if(
+    isset($_GET['delete_error']) &&
+    $_GET['delete_error'] === "1"
+){
+
+    $errorMessage =
+        "The feed record could not be deleted.";
+
+}
+
 
 // Search values
 $search = trim($_GET['search'] ?? "");
@@ -155,13 +178,27 @@ elseif(
 }
 
 
-    else{
+   else{
 
-        $quantityNumber = (int) $quantity;
+    $quantityNumber =
+        (int) $quantity;
 
-        $priceNumber = (float) $price;
+    $priceNumber =
+        (float) $price;
+
+    $totalFeedCost =
+        $quantityNumber *
+        $priceNumber;
 
 
+    mysqli_begin_transaction(
+        $conn
+    );
+
+
+    try{
+
+        // Save the feed purchase
         $insertSql = "
             INSERT INTO feed
             (
@@ -187,60 +224,167 @@ elseif(
                 $insertSql
             );
 
+        if(!$insertStatement){
 
-        if($insertStatement){
-
-            mysqli_stmt_bind_param(
-                $insertStatement,
-                "sidss",
-                $feedName,
-                $quantityNumber,
-                $priceNumber,
-                $supplier,
-                $purchaseDate
+            throw new Exception(
+                "Unable to prepare the feed record."
             );
-
-
-            if(
-                mysqli_stmt_execute(
-                    $insertStatement
-                )
-            ){
-
-                $successMessage =
-                    "Feed record saved successfully.";
-
-
-                // Clear form values after saving
-                $feedName = "";
-
-                $quantity = "";
-
-                $price = "";
-
-                $supplier = "";
-
-                $purchaseDate = "";
-
-            }else{
-
-                $errorMessage =
-                    "The feed record could not be saved.";
-
-            }
-
-            mysqli_stmt_close(
-                $insertStatement
-            );
-
-        }else{
-
-            $errorMessage =
-                "Unable to prepare the feed record.";
 
         }
 
+
+        mysqli_stmt_bind_param(
+            $insertStatement,
+            "sidss",
+            $feedName,
+            $quantityNumber,
+            $priceNumber,
+            $supplier,
+            $purchaseDate
+        );
+
+
+        if(
+            !mysqli_stmt_execute(
+                $insertStatement
+            )
+        ){
+
+            throw new Exception(
+                "The feed record could not be saved."
+            );
+
+        }
+
+
+       $feedId =
+    mysqli_insert_id(
+        $conn
+    );
+
+mysqli_stmt_close(
+    $insertStatement
+);
+
+
+// Automatically record the feed purchase
+// as a farm expense
+        $expenseName =
+            $feedName . " feed purchase";
+
+        $expenseCategory =
+            "Feed";
+
+        $expenseDescription =
+            $quantityNumber .
+            " bag(s) at K" .
+            number_format(
+                $priceNumber,
+                2
+            ) .
+            " per bag from " .
+            $supplier;
+
+
+       $expenseSql = "
+    INSERT INTO expenses
+    (
+        feed_id,
+        expense_name,
+        expense_category,
+        amount,
+        expense_date,
+        description
+    )
+    VALUES
+    (
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+    )
+";
+        $expenseStatement =
+            mysqli_prepare(
+                $conn,
+                $expenseSql
+            );
+
+        if(!$expenseStatement){
+
+            throw new Exception(
+                "Unable to prepare the feed expense."
+            );
+
+        }
+
+
+      mysqli_stmt_bind_param(
+    $expenseStatement,
+    "issdss",
+    $feedId,
+    $expenseName,
+    $expenseCategory,
+    $totalFeedCost,
+    $purchaseDate,
+    $expenseDescription
+);
+
+
+        if(
+            !mysqli_stmt_execute(
+                $expenseStatement
+            )
+        ){
+
+            throw new Exception(
+                "The feed expense could not be saved."
+            );
+
+        }
+
+
+        mysqli_stmt_close(
+            $expenseStatement
+        );
+
+
+        mysqli_commit(
+            $conn
+        );
+
+
+        $successMessage =
+            "Feed purchase saved successfully. Total cost: K" .
+            number_format(
+                $totalFeedCost,
+                2
+            ) .
+            ".";
+
+
+        // Clear form after successful saving
+        $feedName = "";
+        $quantity = "";
+        $price = "";
+        $supplier = "";
+        $purchaseDate = "";
+
+
+    }catch(Exception $exception){
+
+        mysqli_rollback(
+            $conn
+        );
+
+        $errorMessage =
+            $exception->getMessage();
+
     }
+
+}
 
 }
 
@@ -860,9 +1004,10 @@ function createFeedPageUrl(
 
             <div class="form-field">
 
-                <label for="price">
-                    Price (K)
-                </label>
+               <label for="price">
+                Price per Bag (K)
+              </label>
+
 
                 <input
                     type="number"
@@ -1087,15 +1232,16 @@ function createFeedPageUrl(
 
                 <th>Feed Name</th>
 
-               <th>Quantity (Bags)</th>
+              <th>Quantity (Bags)</th>
+              <th>Price per Bag</th>
 
-                <th>Price</th>
+              <th>Total Cost</th>
 
-                <th>Supplier</th>
+              <th>Supplier</th>
 
-                <th>Purchase Date</th>
+              <th>Purchase Date</th>
 
-                <th>Actions</th>
+              <th>Actions</th>
 
             </tr>
 
@@ -1134,21 +1280,36 @@ function createFeedPageUrl(
                         </td>
 
                         <td>
-                            K<?php
-                            echo number_format(
-                                $row['price'],
-                                2
-                            );
-                            ?>
-                        </td>
+    K<?php
+    echo number_format(
+        $row['price'],
+        2
+    );
+    ?>
+</td>
 
-                        <td>
-                            <?php
-                            echo htmlspecialchars(
-                                $row['supplier']
-                            );
-                            ?>
-                        </td>
+<td>
+    K<?php
+
+    $totalFeedCost =
+        (int) $row['quantity'] *
+        (float) $row['price'];
+
+    echo number_format(
+        $totalFeedCost,
+        2
+    );
+
+    ?>
+</td>
+
+<td>
+    <?php
+    echo htmlspecialchars(
+        $row['supplier']
+    );
+    ?>
+</td>
 
                         <td>
                             <?php
@@ -1196,7 +1357,7 @@ function createFeedPageUrl(
                 <tr>
 
                     <td
-                        colspan="7"
+                        colspan="8"
                         class="empty-table-message"
                     >
 
