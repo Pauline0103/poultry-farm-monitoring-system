@@ -217,14 +217,19 @@ $highestMonthlyValue = 1;
 
 
 // Start five months ago, including the current month
+$currentMonthTimestamp =
+    strtotime(
+        date("Y-m-01")
+    );
+
 for($monthOffset = 5; $monthOffset >= 0; $monthOffset--){
 
 
     $monthTimestamp =
         strtotime(
-            "-$monthOffset months"
+            "-$monthOffset months",
+            $currentMonthTimestamp
         );
-
 
     $monthStart =
         date(
